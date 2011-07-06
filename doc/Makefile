@@ -1,11 +1,11 @@
-all: out.html
+all: index.html
 
-out.html: intentions.rst
-	rst2html intentions.rst > out.html
+index.html: intentions.rst
+	rst2html intentions.rst > index.html
 
 clean:
-	rm out.html
+	rm index.html
 
 vi: all
-	firefox out.html
+	firefox index.html
 
