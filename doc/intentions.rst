@@ -6,7 +6,9 @@ Biographie
 
 Alexandre Quessy est un artiste-programmeur montréalais qui s'intéresse à l'échantillonnage d'images, de sons et de données électroniques. Il s'implique activement dans la création de logiciels libres pour les arts et dans leur enseignement. Ses projets ont été présentés au Canada, aux États-Unis, en Norvège, en France, au Mexique et à Taiwan. Il est l'auteur principal du logiciel d'animation en direct Toonloop. Il est directeur du développement logiciel à la Société des arts technologiques. (SAT)
 
-.. image:: zone_touristique.png
+.. image:: images/zone_touristique.png
+
+Photo du sol d'une station de métro à New York.
 
 Résumé
 ------
@@ -31,24 +33,24 @@ Historique
 
 Alexandre Quessy s'intéresse l'échantillonnage depuis environ 2003, année durant laquelle il a découvert le logiciel Pure Data. Il était alors déjà formé à la musique classique et à l'improvisation dramatique, choses qui selon lui sont intimement liées aux arts basés sur le temps.
 
-.. image:: craslab.jpg
+.. image:: images/craslab.jpg
 
 En 2006, Quessy a participé au développement de la plateforme CRASlab au CRAS à Main d'Oeuvres. Ce fût là son premier contact avec la spatialisation sonore. 
 
-.. image:: human_sequencer.jpg
+.. image:: images/human_sequencer.jpg
 
 En 2007, Quessy a  créé le tapis musical (Human Sequencer) dans lequel les visiteurs étaient invités à jouer avec des échantillons sonores sur un séquenceur géant et dans lequel les sons étaient également spatialisés.
 
-.. image:: partaik_transects_sonores.jpg
+.. image:: images/partaik_transects_sonores.jpg
 
 En 2008, Quessy a servi d'accompagnateur d'artiste pour James Partaik, artiste sonore canadien, pour son oeuvre Transects sonores. Dans ce projet, Partaik a fait des séries d'enregistrement de paysages sonores selon des trajectoires rectilignes, non contraintes par le quadrillage des rues et des immeubles. Ce projet fût pour Quessy l'occasion de devenir plus confiant avec les techniques de reproduction sonore Ambisonic. Ce fût aussi pour lui l'occasion d'expérimenter combien il peut être agréable de faire des prises de sons de paysages sonores, puis d'écouter ces sons dans un contexte de reproduction multicanal.
 
-.. image:: ambi_logo.png
+.. image:: images/ambi_logo.png
 
 Plus tard, en 2009, Quessy a suivi un atelier sur la production sonore en 3D avec Ambisonic avec Daniel Courville à Oboro. Il a alors créé les abstractions ambi.* dans la librairie PdMtlAbstractions.
 
 
-.. image:: motifs_urbains.jpg
+.. image:: images/motifs_urbains.jpg
 
 Également en 2009, Quessy a présenté Motifs urbains, avec Isabelle Caron, une performance sur les trajets que l'on trace chaque jour dans la ville que l'on habite. Dans cette oeuvres, des paysages sonores de la ville de Montréal accompagnaient la création d'une animation image par image transmise en réseau. 
 
