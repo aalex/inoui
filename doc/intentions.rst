@@ -13,7 +13,7 @@ Photo du sol d'une station de métro à New York.
 Résumé
 ------
 
-Marche sonore dans Orléans est une installation qui invite à la contemplation de paysages sonores contrastants, comme des sons industriels, des sons naturels et des sons humains. C'est l'occasion de constater à quel point les sons qui nous entourent peuvent varier dans leur caractère, leur timbre, leur rythme et leur spectre. Ainsi, des sons très harmonieux cohabitent avec des sons des plus discordants, voire même violents. 
+*Marche sonore dans Orléans* est une installation qui invite à la contemplation de paysages sonores contrastants, comme des sons industriels, des sons naturels et des sons humains. C'est l'occasion de constater à quel point les sons qui nous entourent peuvent varier dans leur caractère, leur timbre, leur rythme et leur spectre. Ainsi, des sons très harmonieux cohabitent avec des sons des plus discordants, voire même violents. 
 
 L'écoute de tels paysages sonores peut favoriser le recueillement. Parfois, il peut être amusant d'observer le quotidien des gens, ce qui nous donne un peu de recul face à notre condition humaine. Le fait d'écouter des sons familiers à travers un dispositif de reproduction sonore spatialisée peut nous donner des perspectives nouvelles par rapport à ces sons, car nous leur tendons l'oreille d'une manière inouïe.
 
