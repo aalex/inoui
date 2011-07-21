@@ -1,0 +1,10 @@
+I want to convert two stereo wav files from a Zoom H2 device into a single four-channel wav file, in the Ambisonic B format. 
+
+Here is the needed calculation, given I have four input channels i1, i2, i3 and i4, and three ouput channels o1, o2 and o3.
+
+o1 = (i1 + i2 + i3 + i4) * 0.5 * 0.707
+o2 = ((i1 + 12) - (i3 + i4)) * 0.5
+o3 = ((i1 + 13) - (i2 + i4)) * 0.5
+
+The two stereo files are in separate files, indeed. 
+

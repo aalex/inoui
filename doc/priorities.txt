@@ -1,0 +1,16 @@
+Priotités
+=========
+
+ * le son plutôt que l'algorithmie
+
+Choix sonores
+-------------
+ * duree: entre 1 et 60 secondes
+ * environ 8x8 zones (64)
+ * entre 1 et 4 sons par zone (random, ou playlist)
+ * des sons contrastés, qui me parlent. Des sons qui me sont peu familiers
+
+Interactivity
+-------------
+OpenCV -> (motion tracking to blobs) -> trigger zone, playlist -> play sound
+
