@@ -1,0 +1,7 @@
+Deps
+----
+
+libcv-dev
+libhighgui-dev
+libcvaux-dev
+
