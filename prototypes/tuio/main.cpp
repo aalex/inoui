@@ -55,13 +55,30 @@ class Point
         std::string get_next_sound();
         double get_x() { return x_; }
         double get_y() { return y_; }
+        void set_selected(bool selected);
+        bool get_selected() { return selected_; }
     private:
         ClutterActor *actor_;
         std::vector<std::string> sounds_;
         double x_;
         double y_;
         unsigned int current_;
+        bool selected_;
 };
+
+void Point::set_selected(bool selected)
+{
+    selected_ = selected;
+    if (actor_ != NULL)
+    {
+        ClutterColor yes = { 0xff, 0xcc, 0x33, 0x00 };
+        ClutterColor no = { 0x99, 0x99, 0xff, 0x00 };
+        if (selected)
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(actor_), &yes);
+        else
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(actor_), &no);
+    }
+}
 
 ClutterActor *create_circle(float radius, const ClutterColor *color)
 {
@@ -76,7 +93,8 @@ Point::Point(ClutterContainer *parent, double x, double y) :
     actor_(NULL),
     x_(x),
     y_(y),
-    current_(0)
+    current_(0),
+    selected_(false)
 {
     if (parent != NULL)
     {
@@ -84,6 +102,7 @@ Point::Point(ClutterContainer *parent, double x, double y) :
         actor_ = create_circle(50.0f, &color);
         clutter_container_add_actor(parent, actor_);
         clutter_actor_set_position(actor_, clutter_actor_get_width(CLUTTER_ACTOR(parent)) * x_, clutter_actor_get_height(CLUTTER_ACTOR(parent)) * y_);
+        set_selected(false);
     }
 }
 
@@ -117,13 +136,37 @@ class Map
     public:
         Point *add_point(ClutterContainer *parent, double x, double y);
         Point *get_closest_point(double x, double y);
+        bool set_selected(Point *selected);
+        typedef std::tr1::shared_ptr<Point> PointPtr ;
+        typedef std::vector<PointPtr>::iterator PointIterator ;
     private:
         std::vector<std::tr1::shared_ptr<Point> > points_;
 };
 
+bool Map::set_selected(Point *selected)
+{
+    bool got_it = false;
+    PointIterator iter;
+    for (iter = points_.begin(); iter < points_.end(); ++iter)
+    {
+        Point *current = (*iter).get();
+        if (selected)
+        {
+            if (current == selected)
+            {
+
+            }
+        }
+    }
+    if (selected)
+        return got_it;
+    else
+        return true;
+}
+
 Point *Map::add_point(ClutterContainer *parent, double x, double y)
 {
-    points_.push_back(std::tr1::shared_ptr<Point>(new Point(parent, x, y)));
+    points_.push_back(PointPtr(new Point(parent, x, y)));
     return points_.at(points_.size() - 1).get();
 }
 
@@ -144,13 +187,13 @@ Point *Map::get_closest_point(double x, double y)
         unsigned int closest = 0;
         unsigned int index = 0;
         double smallest_distance = 999999999999.0;
-        g_print("Comparing to point (%f, %f)\n", x, y);
-        std::vector<std::tr1::shared_ptr<Point> >::iterator iter;
+        //g_print("Comparing to point (%f, %f)\n", x, y);
+        PointIterator iter;
         for (iter = points_.begin(); iter < points_.end(); ++iter)
         {
             Point *point = (*iter).get();
             double distance = get_distance(x, y, point->get_x(), point->get_y());
-            g_print("Point (%f, %f) is %f units far.\n", point->get_x(), point->get_y(), distance);
+            //g_print("Point (%f, %f) is %f units far.\n", point->get_x(), point->get_y(), distance);
             if (distance < smallest_distance)
             {
                 smallest_distance = distance;
