@@ -24,6 +24,7 @@ class Map;
 struct ExampleApplication
 {
     ClutterActor *avatar_actor;
+    ClutterActor *stage;
     std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
     std::tr1::shared_ptr<Map> map;
 };
@@ -376,16 +377,19 @@ double radians_to_degrees(double radians)
 int on_2dobj_received(const char * path, const char * types,
         lo_arg ** argv, int /*argc*/, void * /*data*/, void *user_data)
 {   
-    //ExampleApplication *self = static_cast<ExampleApplication*>(user_data);
+    ExampleApplication *self = static_cast<ExampleApplication*>(user_data);
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
         float pos_x = argv[3]->f;
         float pos_y = argv[4]->f;
-        float angle = radians_to_degrees(argv[5]->f);
-        g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
-            pos_x,
-            pos_y,
-            angle);
+        // float angle = radians_to_degrees(argv[5]->f);
+        // g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
+        //     pos_x,
+        //     pos_y,
+        //     angle);
+        clutter_actor_set_position(self->avatar_actor,
+            pos_x * clutter_actor_get_width(CLUTTER_ACTOR(self->stage)),
+            pos_y * clutter_actor_get_height(CLUTTER_ACTOR(self->stage)));
     } else
         return 1;
     return 0;            
@@ -397,13 +401,12 @@ int on_2dobj_received(const char * path, const char * types,
 static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
 {
     ExampleApplication *app = (ExampleApplication *) data;
-    app->osc_receiver.get()->receive();
+    while (app->osc_receiver.get()->receive() != 0)
+    {}
 }
 
 int main(int argc, char *argv[])
 {
-    using namespace spatosc;
-    using std::tr1::shared_ptr;
     ClutterActor *stage = NULL;
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
     ClutterColor grid_color = { 0xff, 0xff, 0xff, 0x66 };
@@ -412,6 +415,7 @@ int main(int argc, char *argv[])
 
     clutter_init(&argc, &argv);
     stage = clutter_stage_get_default();
+    app.stage = stage;
     clutter_stage_set_color(CLUTTER_STAGE(stage), &black);
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -433,7 +437,7 @@ int main(int argc, char *argv[])
     g_print("\nWarning: Dragging disabled. Since it requires Clutter >= 1.4.0\n");
 #endif
 
-    app.osc_receiver.reset(new OscReceiver("13333"));
+    app.osc_receiver.reset(new spatosc::OscReceiver("13333"));
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
 
     app.map.reset(new Map);
