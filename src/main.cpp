@@ -24,9 +24,6 @@ static const float WINDOW_WIDTH = 500;
 static const float WINDOW_HEIGHT = 500;
 static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
 
-//forward declarations
-class Map;
-
 /**
  * Info for our little application.
  */
