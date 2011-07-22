@@ -129,7 +129,10 @@ Point *Map::add_point(ClutterContainer *parent, double x, double y)
 
 double get_distance(double x1, double y1, double x2, double y2)
 {
-    return std::abs(std::sqrt(std::pow(x2 - x1, 2.0) - std::pow(y2 - y1, 2.0)));
+    return std::sqrt(
+            std::abs(std::pow(std::abs(x2 - x1), 2.0)) + 
+            std::abs(std::pow(std::abs(y2 - y1), 2.0))
+        );
 }
 
 Point *Map::get_closest_point(double x, double y)
@@ -141,11 +144,13 @@ Point *Map::get_closest_point(double x, double y)
         unsigned int closest = 0;
         unsigned int index = 0;
         double smallest_distance = 999999999999.0;
+        g_print("Comparing to point (%f, %f)\n", x, y);
         std::vector<std::tr1::shared_ptr<Point> >::iterator iter;
         for (iter = points_.begin(); iter < points_.end(); ++iter)
         {
             Point *point = (*iter).get();
             double distance = get_distance(x, y, point->get_x(), point->get_y());
+            g_print("Point (%f, %f) is %f units far.\n", point->get_x(), point->get_y(), distance);
             if (distance < smallest_distance)
             {
                 smallest_distance = distance;
