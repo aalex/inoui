@@ -28,18 +28,23 @@ struct ExampleApplication
     std::tr1::shared_ptr<Map> map;
 };
 
-// class Avatar
-// {
-//     public:
-//         Avatar(ClutterContainer *parent);
-//         void set_position(double x, double y);
-//         void set_orientation(double angle);
-// 
-//     private:
-//         double x_;
-//         double y_;
-//         double angle_;
-// };
+class Avatar
+{
+    public:
+        Avatar(ClutterContainer *parent);
+        void set_position(double x, double y);
+        void set_orientation(double angle);
+
+    private:
+        double x_;
+        double y_;
+        double angle_;
+};
+
+Avatar::Avatar(ClutterContainer *parent)
+{
+    
+}
 
 class Point
 {
@@ -58,6 +63,15 @@ class Point
         unsigned int current_;
 };
 
+ClutterActor *create_circle(float radius, const ClutterColor *color)
+{
+    ClutterActor *actor = clutter_rectangle_new_with_color(color);
+    g_signal_connect(actor, "paint", G_CALLBACK(paint_circle), NULL);
+    clutter_actor_set_anchor_point_from_gravity(actor, CLUTTER_GRAVITY_CENTER);
+    clutter_actor_set_size(actor, radius, radius);
+    return actor;
+}
+
 Point::Point(ClutterContainer *parent, double x, double y) :
     actor_(NULL),
     x_(x),
@@ -67,11 +81,8 @@ Point::Point(ClutterContainer *parent, double x, double y) :
     if (parent != NULL)
     {
         ClutterColor color = { 0xff, 0xcc, 0x33, 0x00 };
-        actor_ = clutter_rectangle_new_with_color(&color);
-        g_signal_connect(actor_, "paint", G_CALLBACK(paint_circle), NULL);
+        actor_ = create_circle(50.0f, &color);
         clutter_container_add_actor(parent, actor_);
-        clutter_actor_set_anchor_point_from_gravity(actor_, CLUTTER_GRAVITY_CENTER);
-        clutter_actor_set_size(actor_, 50.0f, 50.0f);
         clutter_actor_set_position(actor_, clutter_actor_get_width(CLUTTER_ACTOR(parent)) * x_, clutter_actor_get_height(CLUTTER_ACTOR(parent)) * y_);
     }
 }
@@ -358,12 +369,8 @@ int main(int argc, char *argv[])
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
     create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
-    app.avatar_actor = clutter_rectangle_new_with_color(&orange);
-    g_signal_connect(app.avatar_actor, "paint", G_CALLBACK(paint_circle), NULL);
+    app.avatar_actor = create_circle(50.0f, &orange);
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
-    clutter_actor_set_anchor_point_from_gravity(app.avatar_actor,
-            CLUTTER_GRAVITY_CENTER);
-    clutter_actor_set_size(app.avatar_actor, 50.0f, 50.0f);
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
             WINDOW_HEIGHT / 2.0f);
     
