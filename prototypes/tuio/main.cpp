@@ -7,11 +7,16 @@
 #include <spatosc/spatosc.h>
 #include <algorithm>
 #include <string>
+#include <vector>
 #include <tr1/memory>
 
 static const float WINDOW_WIDTH = 500;
 static const float WINDOW_HEIGHT = 500;
 static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
+
+//forward declarations
+void paint_circle(ClutterActor *actor);
+class Map;
 
 /**
  * Info for our little application.
@@ -20,7 +25,126 @@ struct ExampleApplication
 {
     ClutterActor *avatar_actor;
     std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
+    std::tr1::shared_ptr<Map> map;
 };
+
+// class Avatar
+// {
+//     public:
+//         Avatar(ClutterContainer *parent);
+//         void set_position(double x, double y);
+//         void set_orientation(double angle);
+// 
+//     private:
+//         double x_;
+//         double y_;
+//         double angle_;
+// };
+
+class Point
+{
+    public:
+        Point(ClutterContainer *parent, double x, double y);
+        bool add_sound(const std::string &name);
+        void set_position(double x, double y);
+        std::string get_next_sound();
+        double get_x() { return x_; }
+        double get_y() { return y_; }
+    private:
+        ClutterActor *actor_;
+        std::vector<std::string> sounds_;
+        double x_;
+        double y_;
+        unsigned int current_;
+};
+
+Point::Point(ClutterContainer *parent, double x, double y) :
+    actor_(NULL),
+    x_(x),
+    y_(y),
+    current_(0)
+{
+    if (parent != NULL)
+    {
+        ClutterColor color = { 0xff, 0xcc, 0x33, 0x00 };
+        actor_ = clutter_rectangle_new_with_color(&color);
+        g_signal_connect(actor_, "paint", G_CALLBACK(paint_circle), NULL);
+        clutter_container_add_actor(parent, actor_);
+        clutter_actor_set_anchor_point_from_gravity(actor_, CLUTTER_GRAVITY_CENTER);
+        clutter_actor_set_size(actor_, 50.0f, 50.0f);
+        clutter_actor_set_position(actor_, clutter_actor_get_width(CLUTTER_ACTOR(parent)) * x_, clutter_actor_get_height(CLUTTER_ACTOR(parent)) * y_);
+    }
+}
+
+bool Point::add_sound(const std::string &name)
+{
+    sounds_.push_back(name);
+    return true;
+}
+
+std::string Point::get_next_sound()
+{
+    unsigned int length = sounds_.size();
+    ++current_;
+    if (current_ > length)
+        current_ = 0;
+    if (length == 0)
+        return "";
+    else
+    {
+        return sounds_[current_];
+    }
+}
+
+void Point::set_position(double x, double y)
+{
+    clutter_actor_set_position(actor_, x, y);
+}
+
+class Map
+{
+    public:
+        Point *add_point(ClutterContainer *parent, double x, double y);
+        Point *get_closest_point(double x, double y);
+    private:
+        std::vector<std::tr1::shared_ptr<Point> > points_;
+};
+
+Point *Map::add_point(ClutterContainer *parent, double x, double y)
+{
+    points_.push_back(std::tr1::shared_ptr<Point>(new Point(parent, x, y)));
+    return points_.at(points_.size() - 1).get();
+}
+
+double get_distance(double x1, double y1, double x2, double y2)
+{
+    return std::abs(std::sqrt(std::pow(x2 - x1, 2.0) - std::pow(y2 - y1, 2.0)));
+}
+
+Point *Map::get_closest_point(double x, double y)
+{
+    if (points_.size() == 0)
+        return 0;
+    else
+    {
+        unsigned int closest = 0;
+        unsigned int index = 0;
+        double smallest_distance = 999999999999.0;
+        std::vector<std::tr1::shared_ptr<Point> >::iterator iter;
+        for (iter = points_.begin(); iter < points_.end(); ++iter)
+        {
+            Point *point = (*iter).get();
+            double distance = get_distance(x, y, point->get_x(), point->get_y());
+            if (distance < smallest_distance)
+            {
+                smallest_distance = distance;
+                closest = index;
+            }
+            ++index;
+        }
+        return points_.at(closest).get();
+    }
+}
 
 /**
  * Draws a grid.
@@ -257,6 +381,14 @@ int main(int argc, char *argv[])
     app.osc_receiver.reset(new OscReceiver("13333"));
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
 
+    app.map.reset(new Map);
+    app.map.get()->add_point(CLUTTER_CONTAINER(stage), 0.0, 0.0);
+    app.map.get()->add_point(CLUTTER_CONTAINER(stage), 0.1, 0.1);
+    app.map.get()->add_point(CLUTTER_CONTAINER(stage), 0.2, 0.2);
+    Point *point = app.map.get()->get_closest_point(0.1, 0.12);
+    if (point)
+        g_print("Found point at %f %f\n", point->get_x(), point->get_y());
+
     ClutterTimeline *timeline = clutter_timeline_new(1000);
     clutter_timeline_set_loop(timeline, TRUE);
     g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
@@ -270,3 +402,4 @@ int main(int argc, char *argv[])
     clutter_main();
     return 0;
 }
+
