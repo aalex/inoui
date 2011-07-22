@@ -8,6 +8,7 @@ clean-local:
 	rm -rf html
 
 headers = \
+	avatar.h \
 	circle.h \
 	point.h \
 	map.h \
@@ -16,6 +17,7 @@ headers = \
 	config.h
 
 inoui_SOURCES = \
+	avatar.cpp \
 	circle.cpp \
 	grid.cpp \
 	map.cpp \

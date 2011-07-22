@@ -11,10 +11,11 @@
 #include <tr1/memory>
 #include <vector>
 
+#include "avatar.h"
 #include "circle.h"
 #include "grid.h"
-#include "point.h"
 #include "map.h"
+#include "point.h"
 
 #ifndef UNUSED
 #define UNUSED(x) ((void) (x))
@@ -23,6 +24,10 @@
 static const float WINDOW_WIDTH = 500;
 static const float WINDOW_HEIGHT = 500;
 static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
+static const gchar *BACKGROUND_FILE_NAME = "orleans_historique.png";
+static const gchar *SPOT_FILE_NAME = "spot.png";
+static const gint NUM_X = 8;
+static const gint NUM_Y = 8;
 
 /**
  * Info for our little application.
@@ -31,26 +36,62 @@ struct ExampleApplication
 {
     ClutterActor *avatar_actor;
     ClutterActor *stage;
+    ClutterActor *group;
+    ClutterActor *spot_texture;
     std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
     std::tr1::shared_ptr<Map> map;
 };
 
-class Avatar
+static void add_point(ExampleApplication *self, gfloat x, gfloat y)
 {
-    public:
-        Avatar(ClutterContainer *parent);
-        void set_position(double x, double y);
-        void set_orientation(double angle);
+    ClutterActor *clone = clutter_clone_new(self->spot_texture);
+    clutter_container_add_actor(CLUTTER_CONTAINER(self->group), clone);
+    clutter_actor_set_anchor_point_from_gravity(clone, CLUTTER_GRAVITY_CENTER);
+    clutter_actor_set_position(clone, x, y);
+}
 
-    private:
-        double x_;
-        double y_;
-        double angle_;
-};
-
-Avatar::Avatar(ClutterContainer *parent)
+static void init_stuff(ExampleApplication *self)
 {
-    UNUSED(parent);    
+    self->group = clutter_group_new();
+
+    // Background map:
+    GError *error = NULL;
+    ClutterActor *image = clutter_texture_new_from_file(BACKGROUND_FILE_NAME, &error);
+    if (error)
+    {
+        g_critical("Unable to init image: %s", error->message);
+        g_error_free(error);
+    }
+    else 
+        clutter_container_add_actor(CLUTTER_CONTAINER(self->group), image);
+
+    // Init the spot's texture:
+    error = NULL;
+    self->spot_texture = clutter_texture_new_from_file(SPOT_FILE_NAME, &error);
+    if (error)
+    {
+        g_critical("Unable to init image: %s", error->message);
+        g_error_free(error);
+    }
+    else 
+    {
+        clutter_container_add_actor(CLUTTER_CONTAINER(self->group), self->spot_texture);
+        clutter_actor_hide(self->spot_texture);
+    }
+
+    int x;
+    int y;
+    gfloat x_factor = clutter_actor_get_width(self->stage) / NUM_X;
+    gfloat y_factor = clutter_actor_get_height(self->stage) / NUM_Y;
+    for (x = 0; x < NUM_X; ++x)
+    {
+        for (y = 0; y < NUM_Y; ++y)
+        {
+            add_point(self, 
+                x * x_factor + x_factor / 2,
+                y * y_factor + y_factor / 2);
+        }
+    }
 }
 
 /**
@@ -225,6 +266,8 @@ int main(int argc, char *argv[])
     clutter_stage_set_color(CLUTTER_STAGE(stage), &black);
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    init_stuff(&app);
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
     app.avatar_actor = inoui::create_circle(50.0f, &orange);
