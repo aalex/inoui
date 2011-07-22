@@ -38,3 +38,4 @@ src/inoui
 src/stamp-h1
 tests/Makefile
 tests/Makefile.in
+calibration.grid
