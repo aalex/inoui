@@ -1,0 +1,3 @@
+#!/usr/bin/env lunch
+add_command("reactivision -c data/reacTIVision.xml")
+add_command("src/inoui")
