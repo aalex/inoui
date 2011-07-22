@@ -154,10 +154,12 @@ bool Map::set_selected(Point *selected)
         if (selected)
         {
             if (current == selected)
-            {
-
-            }
+                current->set_selected(true);
+            else
+                current->set_selected(false);
         }
+        else
+            current->set_selected(false);
     }
     if (selected)
         return got_it;
@@ -390,6 +392,11 @@ int on_2dobj_received(const char * path, const char * types,
         clutter_actor_set_position(self->avatar_actor,
             pos_x * clutter_actor_get_width(CLUTTER_ACTOR(self->stage)),
             pos_y * clutter_actor_get_height(CLUTTER_ACTOR(self->stage)));
+        Point *closest = self->map.get()->get_closest_point(pos_x, pos_y);
+        if (closest)
+        {
+            self->map.get()->set_selected(closest);
+        }
     } else
         return 1;
     return 0;            
