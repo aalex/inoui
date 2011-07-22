@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <reactivision>
     <tuio host="127.0.0.1" port="13333" />
-    <camera config="camera.xml" />
+    <camera config="data/camera.xml" />
     <!--
          <fiducial engine="amoeba" tree="default" />
          -->
