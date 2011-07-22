@@ -21,8 +21,8 @@
 #define UNUSED(x) ((void) (x))
 #endif
 
-static const float WINDOW_WIDTH = 500;
-static const float WINDOW_HEIGHT = 500;
+static const float WINDOW_WIDTH = 1190;
+static const float WINDOW_HEIGHT = 892;
 static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
 static const gchar *BACKGROUND_FILE_NAME = "orleans_historique.png";
 static const gchar *SPOT_FILE_NAME = "spot.png";
@@ -53,6 +53,7 @@ static void add_point(ExampleApplication *self, gfloat x, gfloat y)
 static void init_stuff(ExampleApplication *self)
 {
     self->group = clutter_group_new();
+    clutter_container_add_actor(CLUTTER_CONTAINER(self->stage), self->group);
 
     // Background map:
     GError *error = NULL;
@@ -101,107 +102,16 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
         gpointer data)
 {
     UNUSED(actor);
-    ExampleApplication *app = static_cast<ExampleApplication *>(data);
+    UNUSED(data);
     switch (event->keyval)
     {
         case CLUTTER_Escape:
             clutter_main_quit();
             break;
-        case CLUTTER_Up:
-            clutter_actor_move_by(app->avatar_actor, 0.0f, -1.0f);
-            break;
-        case CLUTTER_Down:
-            clutter_actor_move_by(app->avatar_actor, 0.0f, 1.0f);
-            break;
-        case CLUTTER_Right:
-            clutter_actor_move_by(app->avatar_actor, 1.0f, 0.0f);
-            break;
-        case CLUTTER_Left:
-            clutter_actor_move_by(app->avatar_actor, -1.0f, 0.0f);
-            break;
         default:
             break;
     }
-    //app->foo_sound->setPosition(clutter_actor_get_x(app->avatar_actor),
-    //        clutter_actor_get_y(app->avatar_actor), 0);
 }
-
-/**
- * Scrolling causes the sound source to move in the z direction.
- */
-gboolean pointer_scroll_cb(ClutterActor *actor, ClutterEvent *event,
-        gpointer data)
-{
-    UNUSED(actor);
-    ExampleApplication *app = static_cast<ExampleApplication *>(data);
-
-    ClutterScrollDirection direction;
-    direction = clutter_event_get_scroll_direction(event);
-    gfloat actor_width;
-    gfloat actor_height;
-    clutter_actor_get_size(app->avatar_actor, &actor_width,
-            &actor_height);
-
-    switch (direction)
-    {
-        case CLUTTER_SCROLL_UP:
-            // increase circle radius
-            clutter_actor_set_size(app->avatar_actor, actor_width * 1.1,
-                    actor_height * 1.1);
-            // TODO increase sound source's position in z
-            break;
-
-        case CLUTTER_SCROLL_DOWN:
-            // decrease circle radius
-            clutter_actor_set_size(app->avatar_actor, actor_width * 0.9f,
-                    actor_height * 0.9);
-            // TODO: decrease sound source's position in z
-            break;
-
-        default:
-            break;
-    }
-
-    return TRUE; /* event has been handled */
-}
-
-#if CLUTTER_CHECK_VERSION(1, 4, 0)
-static void on_drag_motion( ClutterDragAction *action, ClutterActor *actor,
-    gfloat delta_x, gfloat delta_y, gpointer data)
-{
-    ExampleApplication *app = static_cast<ExampleApplication *>(data);
-    (void) app; // Unused
-    float x_pos = clutter_actor_get_x(actor) + delta_x;
-    float y_pos = clutter_actor_get_y(actor) + delta_y;
-    bool stop_it = false;
-
-    if (x_pos >= WINDOW_WIDTH)
-    {
-        stop_it = true;
-        clutter_actor_set_x(actor, WINDOW_WIDTH);
-    }
-    else if (x_pos <= 0.0f)
-    {
-        stop_it = true;
-        clutter_actor_set_x(actor, 0.0f);
-    }
-    else if (y_pos >= WINDOW_HEIGHT)
-    {
-        stop_it = true;
-        clutter_actor_set_y(actor, WINDOW_HEIGHT);
-    }
-    else if (y_pos <= 0.0f)
-    {
-        stop_it = true;
-        clutter_actor_set_y(actor, 0.0);
-    }
-
-    // in Clutter 2.0 we will be able to simply return FALSE instead of calling g_signal_stop_emission_by_name
-    if (stop_it)
-        g_signal_stop_emission_by_name(action, "drag-motion");
-}
-
-#endif
 
 double radians_to_degrees(double radians)
 {
@@ -267,25 +177,14 @@ int main(int argc, char *argv[])
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    init_stuff(&app);
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
+    init_stuff(&app);
 
     app.avatar_actor = inoui::create_circle(50.0f, &orange);
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
             WINDOW_HEIGHT / 2.0f);
     
-    // Make it draggable
-#if CLUTTER_CHECK_VERSION(1, 4, 0)
-    ClutterAction *drag_action = clutter_drag_action_new();
-    g_signal_connect(drag_action, "drag-motion", G_CALLBACK(on_drag_motion), 
-            static_cast<gpointer>(&app));
-    clutter_actor_set_reactive(app.avatar_actor, TRUE);
-    clutter_actor_add_action(app.avatar_actor, drag_action);
-#else
-    g_print("\nWarning: Dragging disabled. Since it requires Clutter >= 1.4.0\n");
-#endif
-
     app.osc_receiver.reset(new spatosc::OscReceiver("13333"));
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
 
@@ -302,8 +201,6 @@ int main(int argc, char *argv[])
     g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
     clutter_timeline_start(timeline);
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
-            static_cast<gpointer>(&app));
-    g_signal_connect(stage, "scroll-event", G_CALLBACK(pointer_scroll_cb), 
             static_cast<gpointer>(&app));
     clutter_actor_show(stage);
 
