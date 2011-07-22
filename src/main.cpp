@@ -35,15 +35,20 @@ static const std::string OSC_RECEIVE_PORT = "13333";
 /**
  * Info for our little application.
  */
-struct ExampleApplication
+class ExampleApplication
 {
-    ClutterActor *avatar_actor;
-    ClutterActor *stage;
-    ClutterActor *group;
-    ClutterActor *spot_texture;
-    std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
-    std::tr1::shared_ptr<Map> map;
-    std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
+    public:
+        // TODO: make data members private
+        ClutterActor *avatar_actor;
+        ClutterActor *stage;
+        ClutterActor *group;
+        ClutterActor *spot_texture;
+        std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
+        std::tr1::shared_ptr<Map> map;
+        std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
+        void on_point_chosen(std::string sound_file_name);
+        void setup_map();
+    private:
 };
 
 static void add_point(ExampleApplication *self, gfloat x, gfloat y)
@@ -166,6 +171,34 @@ static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
     {}
 }
 
+void ExampleApplication::on_point_chosen(std::string sound_file_name)
+{
+    if (sound_file_name != "")
+    {
+        //g_print("on_point_chosen: %s\n", sound_file_name.c_str());
+        //std::string message = "play " + sound_file_name + ";";
+        //g_print("Sending FUDI message: %s \n", message.c_str());
+        //FIXME: fudi_sender.get()->sendFudi(message);
+    }
+}
+
+void ExampleApplication::setup_map()
+{
+    map.reset(new Map);
+    map.get()->point_chosen_signal_.connect(boost::bind(&ExampleApplication::on_point_chosen, this, _1));
+    Point *point = 0;
+    point = map.get()->add_point(CLUTTER_CONTAINER(stage), 0.0, 0.0);
+    point->add_sound("a.wav");
+    point->add_sound("b.wav");
+    point = map.get()->add_point(CLUTTER_CONTAINER(stage), 0.1, 0.1);
+    point->add_sound("c.wav");
+    point = map.get()->add_point(CLUTTER_CONTAINER(stage), 0.2, 0.2);
+    point->add_sound("d.wav");
+    //Point *closest = map.get()->get_closest_point(0.1, 0.12);
+    //if (closest)
+    //    g_print("Found point at %f %f\n", closest->get_x(), closest->get_y());
+}
+
 int main(int argc, char *argv[])
 {
     ClutterActor *stage = NULL;
@@ -192,13 +225,7 @@ int main(int argc, char *argv[])
     app.osc_receiver.reset(new spatosc::OscReceiver(OSC_RECEIVE_PORT));
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
 
-    app.map.reset(new Map);
-    app.map.get()->add_point(CLUTTER_CONTAINER(stage), 0.0, 0.0);
-    app.map.get()->add_point(CLUTTER_CONTAINER(stage), 0.1, 0.1);
-    app.map.get()->add_point(CLUTTER_CONTAINER(stage), 0.2, 0.2);
-    Point *point = app.map.get()->get_closest_point(0.1, 0.12);
-    if (point)
-        g_print("Found point at %f %f\n", point->get_x(), point->get_y());
+    app.setup_map();
 
     ClutterTimeline *timeline = clutter_timeline_new(1000);
     clutter_timeline_set_loop(timeline, TRUE);
@@ -207,7 +234,7 @@ int main(int argc, char *argv[])
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
 
-    app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, true));
+    app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
 
     clutter_actor_show(stage);
     clutter_main();

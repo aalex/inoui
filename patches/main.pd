@@ -1,0 +1,10 @@
+#N canvas 4 73 450 300 10;
+#X obj 240 116 print netreceive;
+#X obj 181 151 list prepend set;
+#X obj 181 173 list trim;
+#X msg 181 194;
+#X obj 181 58 netreceive 14444 1;
+#X connect 1 0 2 0;
+#X connect 2 0 3 0;
+#X connect 4 0 0 0;
+#X connect 4 0 1 0;

@@ -1,6 +1,11 @@
 #include "map.h"
 #include <cmath>
 
+Map::Map()
+{
+    closest_point_ = 0;
+}
+
 bool Map::set_selected(Point *selected)
 {
     bool got_it = false;
@@ -61,8 +66,13 @@ Point *Map::get_closest_point(double x, double y)
             }
             ++index;
         }
-        return points_.at(closest).get();
+        Point *ret = points_.at(closest).get();
+        if (ret != closest_point_)
+        {
+            closest_point_ = ret;
+            point_chosen_signal_(ret->get_next_sound());
+        }
+        return ret;
     }
 }
-
 

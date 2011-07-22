@@ -1,3 +1,4 @@
 #!/usr/bin/env lunch
-add_command("reactivision -c data/reacTIVision.xml")
-add_command("src/inoui")
+add_command("reactivision -c data/reacTIVision.xml", identifier="reactivision")
+add_command("src/inoui", identifier="inoui")
+add_command("pd patches/main.pd", identifier="pd")
