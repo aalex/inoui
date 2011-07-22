@@ -18,8 +18,7 @@ static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
  */
 struct ExampleApplication
 {
-    ClutterActor *foo_actor;
-    spatosc::SoundSource *foo_sound;
+    ClutterActor *avatar_actor;
     std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
 };
 
@@ -88,22 +87,22 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
             clutter_main_quit();
             break;
         case CLUTTER_Up:
-            clutter_actor_move_by(app->foo_actor, 0.0f, -1.0f);
+            clutter_actor_move_by(app->avatar_actor, 0.0f, -1.0f);
             break;
         case CLUTTER_Down:
-            clutter_actor_move_by(app->foo_actor, 0.0f, 1.0f);
+            clutter_actor_move_by(app->avatar_actor, 0.0f, 1.0f);
             break;
         case CLUTTER_Right:
-            clutter_actor_move_by(app->foo_actor, 1.0f, 0.0f);
+            clutter_actor_move_by(app->avatar_actor, 1.0f, 0.0f);
             break;
         case CLUTTER_Left:
-            clutter_actor_move_by(app->foo_actor, -1.0f, 0.0f);
+            clutter_actor_move_by(app->avatar_actor, -1.0f, 0.0f);
             break;
         default:
             break;
     }
-    app->foo_sound->setPosition(clutter_actor_get_x(app->foo_actor),
-            clutter_actor_get_y(app->foo_actor), 0);
+    //app->foo_sound->setPosition(clutter_actor_get_x(app->avatar_actor),
+    //        clutter_actor_get_y(app->avatar_actor), 0);
 }
 
 /**
@@ -118,21 +117,21 @@ gboolean pointer_scroll_cb(ClutterActor *actor, ClutterEvent *event,
     direction = clutter_event_get_scroll_direction(event);
     gfloat actor_width;
     gfloat actor_height;
-    clutter_actor_get_size(app->foo_actor, &actor_width,
+    clutter_actor_get_size(app->avatar_actor, &actor_width,
             &actor_height);
 
     switch (direction)
     {
         case CLUTTER_SCROLL_UP:
             // increase circle radius
-            clutter_actor_set_size(app->foo_actor, actor_width * 1.1,
+            clutter_actor_set_size(app->avatar_actor, actor_width * 1.1,
                     actor_height * 1.1);
             // TODO increase sound source's position in z
             break;
 
         case CLUTTER_SCROLL_DOWN:
             // decrease circle radius
-            clutter_actor_set_size(app->foo_actor, actor_width * 0.9f,
+            clutter_actor_set_size(app->avatar_actor, actor_width * 0.9f,
                     actor_height * 0.9);
             // TODO: decrease sound source's position in z
             break;
@@ -182,6 +181,12 @@ static void on_drag_motion( ClutterDragAction *action, ClutterActor *actor,
 
 #endif
 
+double radians_to_degrees(double radians)
+{
+    static double ratio = 180.0 / 3.141592653589793238;
+    return radians * ratio;
+}
+
 /**
  * Handles /tuio/2Dobj set sessionID classID pos_x pos_y angle vel_X vel_Y vel_Angle motion_acceleration rotation_acceleration
  */
@@ -191,9 +196,9 @@ int on_2dobj_received(const char * path, const char * types,
     //ExampleApplication *self = static_cast<ExampleApplication*>(user_data);
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
-        float pos_x = argv[2]->f;
-        float pos_y = argv[3]->f;
-        float angle = argv[4]->f;
+        float pos_x = argv[3]->f;
+        float pos_y = argv[4]->f;
+        float angle = radians_to_degrees(argv[5]->f);
         g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
             pos_x,
             pos_y,
@@ -203,10 +208,12 @@ int on_2dobj_received(const char * path, const char * types,
     return 0;            
 }
 
+/**
+ * Polls OSC messages on each frame that is drawn.
+ */
 static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
 {
     ExampleApplication *app = (ExampleApplication *) data;
-    //int result = 
     app->osc_receiver.get()->receive();
 }
 
@@ -214,7 +221,6 @@ int main(int argc, char *argv[])
 {
     using namespace spatosc;
     using std::tr1::shared_ptr;
-    Scene scene;
     ClutterActor *stage = NULL;
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
     ClutterColor grid_color = { 0xff, 0xff, 0xff, 0x66 };
@@ -226,16 +232,15 @@ int main(int argc, char *argv[])
     clutter_stage_set_color(CLUTTER_STAGE(stage), &black);
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
-
     create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
-    app.foo_actor = clutter_rectangle_new_with_color(&orange);
-    g_signal_connect(app.foo_actor, "paint", G_CALLBACK(paint_circle), NULL);
-    clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.foo_actor);
-    clutter_actor_set_anchor_point_from_gravity(app.foo_actor,
+    app.avatar_actor = clutter_rectangle_new_with_color(&orange);
+    g_signal_connect(app.avatar_actor, "paint", G_CALLBACK(paint_circle), NULL);
+    clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
+    clutter_actor_set_anchor_point_from_gravity(app.avatar_actor,
             CLUTTER_GRAVITY_CENTER);
-    clutter_actor_set_size(app.foo_actor, 50.0f, 50.0f);
-    clutter_actor_set_position(app.foo_actor, WINDOW_WIDTH / 2.0f,
+    clutter_actor_set_size(app.avatar_actor, 50.0f, 50.0f);
+    clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
             WINDOW_HEIGHT / 2.0f);
     
     // Make it draggable
@@ -243,30 +248,23 @@ int main(int argc, char *argv[])
     ClutterAction *drag_action = clutter_drag_action_new();
     g_signal_connect(drag_action, "drag-motion", G_CALLBACK(on_drag_motion), 
             static_cast<gpointer>(&app));
-    clutter_actor_set_reactive(app.foo_actor, TRUE);
-    clutter_actor_add_action(app.foo_actor, drag_action);
+    clutter_actor_set_reactive(app.avatar_actor, TRUE);
+    clutter_actor_add_action(app.avatar_actor, drag_action);
 #else
     g_print("\nWarning: Dragging disabled. Since it requires Clutter >= 1.4.0\n");
 #endif
 
     app.osc_receiver.reset(new OscReceiver("13333"));
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
-    app.foo_sound = scene.createSoundSource("1");
-    scene.addTranslator<BasicTranslator>("basic");
-    app.foo_sound->setPosition(clutter_actor_get_x(app.foo_actor),
-            clutter_actor_get_y(app.foo_actor), 0);
-    scene.debugPrint();
 
     ClutterTimeline *timeline = clutter_timeline_new(1000);
     clutter_timeline_set_loop(timeline, TRUE);
     g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
     clutter_timeline_start(timeline);
-
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
     g_signal_connect(stage, "scroll-event", G_CALLBACK(pointer_scroll_cb), 
             static_cast<gpointer>(&app));
-            
     clutter_actor_show(stage);
 
     clutter_main();
