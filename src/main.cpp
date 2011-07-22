@@ -10,6 +10,10 @@
 #include <vector>
 #include <tr1/memory>
 
+#ifndef UNUSED
+#define UNUSED(x) ((void) (x))
+#endif
+
 static const float WINDOW_WIDTH = 500;
 static const float WINDOW_HEIGHT = 500;
 static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
@@ -44,7 +48,7 @@ class Avatar
 
 Avatar::Avatar(ClutterContainer *parent)
 {
-    
+    UNUSED(parent);    
 }
 
 class Point
@@ -266,6 +270,7 @@ void paint_circle(ClutterActor *actor)
 static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
         gpointer data)
 {
+    UNUSED(actor);
     ExampleApplication *app = static_cast<ExampleApplication *>(data);
     switch (event->keyval)
     {
@@ -297,6 +302,7 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
 gboolean pointer_scroll_cb(ClutterActor *actor, ClutterEvent *event,
         gpointer data)
 {
+    UNUSED(actor);
     ExampleApplication *app = static_cast<ExampleApplication *>(data);
 
     ClutterScrollDirection direction;
@@ -379,6 +385,8 @@ double radians_to_degrees(double radians)
 int on_2dobj_received(const char * path, const char * types,
         lo_arg ** argv, int /*argc*/, void * /*data*/, void *user_data)
 {   
+    UNUSED(path);
+    UNUSED(types);
     ExampleApplication *self = static_cast<ExampleApplication*>(user_data);
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
@@ -407,6 +415,8 @@ int on_2dobj_received(const char * path, const char * types,
  */
 static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
 {
+    UNUSED(timeline);
+    UNUSED(msec);
     ExampleApplication *app = (ExampleApplication *) data;
     while (app->osc_receiver.get()->receive() != 0)
     {}
