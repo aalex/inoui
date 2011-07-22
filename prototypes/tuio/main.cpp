@@ -203,6 +203,13 @@ int on_2dobj_received(const char * path, const char * types,
     return 0;            
 }
 
+static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
+{
+    ExampleApplication *app = (ExampleApplication *) data;
+    //int result = 
+    app->osc_receiver.get()->receive();
+}
+
 int main(int argc, char *argv[])
 {
     using namespace spatosc;
@@ -249,6 +256,11 @@ int main(int argc, char *argv[])
     app.foo_sound->setPosition(clutter_actor_get_x(app.foo_actor),
             clutter_actor_get_y(app.foo_actor), 0);
     scene.debugPrint();
+
+    ClutterTimeline *timeline = clutter_timeline_new(1000);
+    clutter_timeline_set_loop(timeline, TRUE);
+    g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
+    clutter_timeline_start(timeline);
 
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
