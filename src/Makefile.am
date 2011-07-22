@@ -8,10 +8,18 @@ clean-local:
 	rm -rf html
 
 headers = \
+	circle.h \
+	point.h \
+	map.h \
+	grid.h \
+	main.cpp \
 	config.h
 
 inoui_SOURCES = \
-	main.cpp \
+	circle.cpp \
+	grid.cpp \
+	map.cpp \
+	point.cpp \
 	$(headers)
 
 inoui_CXXFLAGS = \

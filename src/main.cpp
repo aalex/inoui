@@ -3,12 +3,18 @@
  *
  * This example is in the public domain.
  */
-#include <clutter/clutter.h>
-#include <spatosc/spatosc.h>
 #include <algorithm>
+#include <clutter/clutter.h>
+#include <cmath>
+#include <spatosc/spatosc.h>
 #include <string>
-#include <vector>
 #include <tr1/memory>
+#include <vector>
+
+#include "circle.h"
+#include "grid.h"
+#include "point.h"
+#include "map.h"
 
 #ifndef UNUSED
 #define UNUSED(x) ((void) (x))
@@ -19,7 +25,6 @@ static const float WINDOW_HEIGHT = 500;
 static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
 
 //forward declarations
-void paint_circle(ClutterActor *actor);
 class Map;
 
 /**
@@ -49,219 +54,6 @@ class Avatar
 Avatar::Avatar(ClutterContainer *parent)
 {
     UNUSED(parent);    
-}
-
-class Point
-{
-    public:
-        Point(ClutterContainer *parent, double x, double y);
-        bool add_sound(const std::string &name);
-        void set_position(double x, double y);
-        std::string get_next_sound();
-        double get_x() { return x_; }
-        double get_y() { return y_; }
-        void set_selected(bool selected);
-        bool get_selected() { return selected_; }
-    private:
-        ClutterActor *actor_;
-        std::vector<std::string> sounds_;
-        double x_;
-        double y_;
-        unsigned int current_;
-        bool selected_;
-};
-
-void Point::set_selected(bool selected)
-{
-    selected_ = selected;
-    if (actor_ != NULL)
-    {
-        ClutterColor yes = { 0xff, 0xcc, 0x33, 0x00 };
-        ClutterColor no = { 0x99, 0x99, 0xff, 0x00 };
-        if (selected)
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(actor_), &yes);
-        else
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(actor_), &no);
-    }
-}
-
-ClutterActor *create_circle(float radius, const ClutterColor *color)
-{
-    ClutterActor *actor = clutter_rectangle_new_with_color(color);
-    g_signal_connect(actor, "paint", G_CALLBACK(paint_circle), NULL);
-    clutter_actor_set_anchor_point_from_gravity(actor, CLUTTER_GRAVITY_CENTER);
-    clutter_actor_set_size(actor, radius, radius);
-    return actor;
-}
-
-Point::Point(ClutterContainer *parent, double x, double y) :
-    actor_(NULL),
-    x_(x),
-    y_(y),
-    current_(0),
-    selected_(false)
-{
-    if (parent != NULL)
-    {
-        ClutterColor color = { 0xff, 0xcc, 0x33, 0x00 };
-        actor_ = create_circle(50.0f, &color);
-        clutter_container_add_actor(parent, actor_);
-        clutter_actor_set_position(actor_, clutter_actor_get_width(CLUTTER_ACTOR(parent)) * x_, clutter_actor_get_height(CLUTTER_ACTOR(parent)) * y_);
-        set_selected(false);
-    }
-}
-
-bool Point::add_sound(const std::string &name)
-{
-    sounds_.push_back(name);
-    return true;
-}
-
-std::string Point::get_next_sound()
-{
-    unsigned int length = sounds_.size();
-    ++current_;
-    if (current_ > length)
-        current_ = 0;
-    if (length == 0)
-        return "";
-    else
-    {
-        return sounds_[current_];
-    }
-}
-
-void Point::set_position(double x, double y)
-{
-    clutter_actor_set_position(actor_, x, y);
-}
-
-class Map
-{
-    public:
-        Point *add_point(ClutterContainer *parent, double x, double y);
-        Point *get_closest_point(double x, double y);
-        bool set_selected(Point *selected);
-        typedef std::tr1::shared_ptr<Point> PointPtr ;
-        typedef std::vector<PointPtr>::iterator PointIterator ;
-    private:
-        std::vector<std::tr1::shared_ptr<Point> > points_;
-};
-
-bool Map::set_selected(Point *selected)
-{
-    bool got_it = false;
-    PointIterator iter;
-    for (iter = points_.begin(); iter < points_.end(); ++iter)
-    {
-        Point *current = (*iter).get();
-        if (selected)
-        {
-            if (current == selected)
-                current->set_selected(true);
-            else
-                current->set_selected(false);
-        }
-        else
-            current->set_selected(false);
-    }
-    if (selected)
-        return got_it;
-    else
-        return true;
-}
-
-Point *Map::add_point(ClutterContainer *parent, double x, double y)
-{
-    points_.push_back(PointPtr(new Point(parent, x, y)));
-    return points_.at(points_.size() - 1).get();
-}
-
-double get_distance(double x1, double y1, double x2, double y2)
-{
-    return std::sqrt(
-            std::abs(std::pow(std::abs(x2 - x1), 2.0)) + 
-            std::abs(std::pow(std::abs(y2 - y1), 2.0))
-        );
-}
-
-Point *Map::get_closest_point(double x, double y)
-{
-    if (points_.size() == 0)
-        return 0;
-    else
-    {
-        unsigned int closest = 0;
-        unsigned int index = 0;
-        double smallest_distance = 999999999999.0;
-        //g_print("Comparing to point (%f, %f)\n", x, y);
-        PointIterator iter;
-        for (iter = points_.begin(); iter < points_.end(); ++iter)
-        {
-            Point *point = (*iter).get();
-            double distance = get_distance(x, y, point->get_x(), point->get_y());
-            //g_print("Point (%f, %f) is %f units far.\n", point->get_x(), point->get_y(), distance);
-            if (distance < smallest_distance)
-            {
-                smallest_distance = distance;
-                closest = index;
-            }
-            ++index;
-        }
-        return points_.at(closest).get();
-    }
-}
-
-/**
- * Draws a grid.
- *
- * The parent must have a size.
- * Note that it adds it to its parent.
- */
-ClutterActor *create_grid(ClutterContainer *parent, gfloat interval_x, gfloat interval_y, ClutterColor *color)
-{
-    // group
-    ClutterActor *group = clutter_group_new();
-    clutter_container_add_actor(CLUTTER_CONTAINER(parent), CLUTTER_ACTOR(group));
-    gfloat parent_w = clutter_actor_get_width(CLUTTER_ACTOR(parent));
-    gfloat parent_h = clutter_actor_get_height(CLUTTER_ACTOR(parent));
-
-    gfloat x, y;
-    ClutterActor *rect = NULL;
-    // vertical lines:
-    for (x = 0.0; x < parent_w; x += interval_x)
-    {
-        rect = clutter_rectangle_new_with_color(color);
-        clutter_container_add_actor(CLUTTER_CONTAINER(group), CLUTTER_ACTOR(rect));
-        clutter_actor_set_height(rect, parent_h);
-        clutter_actor_set_width(rect, 1.0);
-        clutter_actor_set_position(rect, x, 0.0);
-    }
-    for (y = 0.0; y < parent_h; y += interval_y)
-    {
-        rect = clutter_rectangle_new_with_color(color);
-        clutter_container_add_actor(CLUTTER_CONTAINER(group), CLUTTER_ACTOR(rect));
-        clutter_actor_set_height(rect, 1.0);
-        clutter_actor_set_width(rect, parent_w);
-        clutter_actor_set_position(rect, 0.0, y);
-    }
-    return group;
-}
-
-/**
- * We override the paint method of a rectangle to actually paint a circle.
- *
- * We use its original color, but with an alpha of 100%.
- */
-void paint_circle(ClutterActor *actor)
-{
-    gfloat radius = std::min(clutter_actor_get_width(actor), 
-            clutter_actor_get_height(actor)) / 2.0f;
-    ClutterColor color;
-    clutter_rectangle_get_color(CLUTTER_RECTANGLE(actor), &color);
-    cogl_set_source_color4ub(color.red, color.green, color.blue, 0xff);
-    cogl_path_arc(radius, radius, radius, radius, 0, 360);
-    cogl_path_fill();
 }
 
 /**
@@ -436,9 +228,9 @@ int main(int argc, char *argv[])
     clutter_stage_set_color(CLUTTER_STAGE(stage), &black);
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
-    create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
+    inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
-    app.avatar_actor = create_circle(50.0f, &orange);
+    app.avatar_actor = inoui::create_circle(50.0f, &orange);
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
             WINDOW_HEIGHT / 2.0f);
