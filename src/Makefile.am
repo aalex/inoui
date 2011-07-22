@@ -10,17 +10,20 @@ clean-local:
 headers = \
 	avatar.h \
 	circle.h \
+	fudi_sender.h \
 	point.h \
 	map.h \
 	grid.h \
-	main.cpp \
+	unused.h \
 	config.h
 
 inoui_SOURCES = \
 	avatar.cpp \
 	circle.cpp \
+	fudi_sender.cpp \
 	grid.cpp \
 	map.cpp \
+	main.cpp \
 	point.cpp \
 	$(headers)
 
