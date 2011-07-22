@@ -6,7 +6,8 @@
 #include <algorithm>
 #include <clutter/clutter.h>
 #include <cmath>
-#include <spatosc/spatosc.h>
+#include <spatosc/fudi_sender.h>
+#include <spatosc/oscreceiver.h>
 #include <string>
 #include <tr1/memory>
 #include <vector>
@@ -28,6 +29,8 @@ static const gchar *BACKGROUND_FILE_NAME = "orleans_historique.png";
 static const gchar *SPOT_FILE_NAME = "spot.png";
 static const gint NUM_X = 8;
 static const gint NUM_Y = 8;
+static const gint FUDI_SEND_PORT = 14444;
+static const std::string OSC_RECEIVE_PORT = "13333";
 
 /**
  * Info for our little application.
@@ -40,6 +43,7 @@ struct ExampleApplication
     ClutterActor *spot_texture;
     std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
     std::tr1::shared_ptr<Map> map;
+    std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
 };
 
 static void add_point(ExampleApplication *self, gfloat x, gfloat y)
@@ -185,7 +189,7 @@ int main(int argc, char *argv[])
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
             WINDOW_HEIGHT / 2.0f);
     
-    app.osc_receiver.reset(new spatosc::OscReceiver("13333"));
+    app.osc_receiver.reset(new spatosc::OscReceiver(OSC_RECEIVE_PORT));
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
 
     app.map.reset(new Map);
@@ -202,8 +206,10 @@ int main(int argc, char *argv[])
     clutter_timeline_start(timeline);
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
-    clutter_actor_show(stage);
 
+    app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, true));
+
+    clutter_actor_show(stage);
     clutter_main();
     return 0;
 }
