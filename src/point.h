@@ -26,12 +26,14 @@ class Point
         // actors are not destructed when this object is destroyed
         ClutterActor *circle_;
         ClutterActor *group_;
+        ClutterActor *text_;
         std::vector<std::string> sounds_;
         double x_;
         double y_;
         unsigned int current_;
         bool selected_;
         double scale_;
+        void update_label();
 };
 
 #endif

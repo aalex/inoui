@@ -1,7 +1,6 @@
 /**
  * Inoui: A map of sounds.
  */
-#include <algorithm>
 #include <clutter/clutter.h>
 #include <cmath>
 #include <spatosc/fudi_sender.h>
@@ -71,7 +70,6 @@ void InouiApplication::add_static_point(gfloat x, gfloat y)
 
 void InouiApplication::init_map_textures()
 {
-
     // Background map:
     GError *error = NULL;
     ClutterActor *image = clutter_texture_new_from_file(BACKGROUND_FILE_NAME, &error);
@@ -160,7 +158,8 @@ int on_2dobj_received(const char * path, const char * types,
         {
             self->get_map()->set_selected(closest);
         }
-    } else
+    }
+    else
         return 1;
     return 0;            
 }
@@ -203,14 +202,14 @@ void InouiApplication::populate_map()
     Map *the_map = get_map();
     Point *point = 0;
 
-    point = the_map->add_point(0.0, 0.0);
+    point = the_map->add_point(300.0, 300.0);
     point->add_sound("a.wav");
     point->add_sound("b.wav");
 
-    point = the_map->add_point(0.1, 0.1);
+    point = the_map->add_point(100.0, 100.0);
     point->add_sound("c.wav");
 
-    point = the_map->add_point(0.2, 0.2);
+    point = the_map->add_point(200.0, 2.00);
     point->add_sound("d.wav");
 }
 
@@ -259,7 +258,12 @@ int main(int argc, char *argv[])
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
 
     clutter_actor_show(stage);
+    
+    // print some info:
     inoui::print_actors(app.get_map()->get_actor(), 0);
+    //Map *the_map = app.get_map();
+    
+
     clutter_main();
     return 0;
 }
