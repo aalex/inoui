@@ -3,20 +3,6 @@
 #include "point.h"
 #include "circle.h"
 
-void Point::set_selected(bool selected)
-{
-    selected_ = selected;
-    if (circle_ != NULL)
-    {
-        ClutterColor yes = { 0xff, 0xcc, 0x33, 0x00 };
-        ClutterColor no = { 0x99, 0x99, 0xff, 0x00 };
-        if (selected)
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &yes);
-        else
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &no);
-    }
-}
-
 Point::Point(double scale, double x, double y) :
     circle_(NULL),
     x_(x),
@@ -31,7 +17,7 @@ Point::Point(double scale, double x, double y) :
     clutter_actor_set_anchor_point_from_gravity(group_, CLUTTER_GRAVITY_CENTER);
 
     // circle
-    ClutterColor circle_color = { 0xff, 0xcc, 0x33, 0x00 };
+    ClutterColor circle_color = { 0x99, 0x99, 0xff, 0x00 };
     circle_ = inoui::create_circle(50.0f, &circle_color);
     clutter_actor_set_name(circle_, "point-circle");
     clutter_actor_set_anchor_point_from_gravity(circle_, CLUTTER_GRAVITY_CENTER);
@@ -47,6 +33,20 @@ Point::Point(double scale, double x, double y) :
     set_scale(scale_);
     //update_label();
     set_selected(false);
+}
+
+void Point::set_selected(bool selected)
+{
+    selected_ = selected;
+    if (circle_ != NULL)
+    {
+        ClutterColor yes = { 0xff, 0xcc, 0x33, 0x00 };
+        ClutterColor no = { 0x99, 0x99, 0xff, 0x00 };
+        if (selected)
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &yes);
+        else
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &no);
+    }
 }
 
 void Point::set_scale(double scale)

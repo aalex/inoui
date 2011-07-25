@@ -10,8 +10,9 @@ namespace inoui
  *
  * We use its original color, but with an alpha of 100%.
  */
-static void paint_circle(ClutterActor *actor)
+static void paint_circle(ClutterActor *actor, gpointer data)
 {
+    (void) data;
     gfloat radius = std::min(clutter_actor_get_width(actor), 
             clutter_actor_get_height(actor)) / 2.0f;
     ClutterColor color;

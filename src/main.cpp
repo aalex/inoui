@@ -25,11 +25,14 @@ static const float WINDOW_WIDTH = 1190;
 static const float WINDOW_HEIGHT = 892;
 static const char *WINDOW_TITLE = "Press Escape to quit";
 static const gchar *BACKGROUND_FILE_NAME = "orleans_historique.png";
-static const gchar *SPOT_FILE_NAME = "spot.png";
-static const gint NUM_X = 8;
-static const gint NUM_Y = 6;
+//static const gchar *SPOT_FILE_NAME = "spot.png";
+//static const gint NUM_X = 8;
+//static const gint NUM_Y = 6;
 static const gint FUDI_SEND_PORT = 14444;
 static const std::string OSC_RECEIVE_PORT = "13333";
+static const gint MAP_CENTER_X = 600;
+static const gint MAP_CENTER_Y = 400;
+static const double MAP_SCALE_FACTOR = 10.0; // how many meters per pixel
 
 /**
  * Info for our little application.
@@ -59,15 +62,15 @@ Map *InouiApplication::get_map()
     return map_.get();
 }
 
-void InouiApplication::add_static_point(gfloat x, gfloat y)
-{
-    ClutterActor *clone = clutter_clone_new(spot_texture);
-    clutter_actor_set_name(clone, "some-textured-spot");
-    clutter_container_add_actor(CLUTTER_CONTAINER(group), clone);
-    clutter_actor_set_anchor_point_from_gravity(clone, CLUTTER_GRAVITY_CENTER);
-    clutter_actor_set_position(clone, x, y);
-}
-
+// void InouiApplication::add_static_point(gfloat x, gfloat y)
+// {
+//     ClutterActor *clone = clutter_clone_new(spot_texture);
+//     clutter_actor_set_name(clone, "some-textured-spot");
+//     clutter_container_add_actor(CLUTTER_CONTAINER(group), clone);
+//     clutter_actor_set_anchor_point_from_gravity(clone, CLUTTER_GRAVITY_CENTER);
+//     clutter_actor_set_position(clone, x, y);
+// }
+// 
 void InouiApplication::init_map_textures()
 {
     // Background map:
@@ -84,34 +87,34 @@ void InouiApplication::init_map_textures()
         clutter_container_add_actor(CLUTTER_CONTAINER(group), image);
     }
 
-    // Init the spot's texture:
-    error = NULL;
-    spot_texture = clutter_texture_new_from_file(SPOT_FILE_NAME, &error);
-    if (error)
-    {
-        g_critical("Unable to init image: %s", error->message);
-        g_error_free(error);
-    }
-    else 
-    {
-        clutter_actor_set_name(image, "spot-texture");
-        clutter_container_add_actor(CLUTTER_CONTAINER(group), spot_texture);
-        clutter_actor_hide(spot_texture);
-    }
-
-    int x;
-    int y;
-    gfloat x_factor = clutter_actor_get_width(stage) / NUM_X;
-    gfloat y_factor = clutter_actor_get_height(stage) / NUM_Y;
-    for (x = 0; x < NUM_X; ++x)
-    {
-        for (y = 0; y < NUM_Y; ++y)
-        {
-            add_static_point(
-                x * x_factor + x_factor / 2,
-                y * y_factor + y_factor / 2);
-        }
-    }
+//     // Init the spot's texture:
+//     error = NULL;
+//     spot_texture = clutter_texture_new_from_file(SPOT_FILE_NAME, &error);
+//     if (error)
+//     {
+//         g_critical("Unable to init image: %s", error->message);
+//         g_error_free(error);
+//     }
+//     else 
+//     {
+//         clutter_actor_set_name(image, "spot-texture");
+//         clutter_container_add_actor(CLUTTER_CONTAINER(group), spot_texture);
+//         clutter_actor_hide(spot_texture);
+//     }
+// 
+//     int x;
+//     int y;
+//     gfloat x_factor = clutter_actor_get_width(stage) / NUM_X;
+//     gfloat y_factor = clutter_actor_get_height(stage) / NUM_Y;
+//     for (x = 0; x < NUM_X; ++x)
+//     {
+//         for (y = 0; y < NUM_Y; ++y)
+//         {
+//             add_static_point(
+//                 x * x_factor + x_factor / 2,
+//                 y * y_factor + y_factor / 2);
+//         }
+//     }
 }
 
 /**
@@ -217,7 +220,6 @@ int main(int argc, char *argv[])
 {
     ClutterActor *stage = NULL;
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
-    ClutterColor grid_color = { 0xff, 0xff, 0xff, 0x66 };
     ClutterColor orange = { 0xff, 0xcc, 0x33, 0x00 }; /* transparent orange */
     InouiApplication app;
 
@@ -228,7 +230,6 @@ int main(int argc, char *argv[])
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
     app.group = clutter_group_new();
     clutter_actor_set_name(app.group, "main-group");
@@ -247,6 +248,9 @@ int main(int argc, char *argv[])
     app.setup_map();
     app.populate_map();
 
+    ClutterColor grid_color = { 0xff, 0xff, 0xff, 0x33 };
+    inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
+
     // Setup a callback that is called on each frame being rendered
     ClutterTimeline *timeline = clutter_timeline_new(1000);
     clutter_timeline_set_loop(timeline, TRUE);
@@ -263,7 +267,6 @@ int main(int argc, char *argv[])
     inoui::print_actors(app.get_map()->get_actor(), 0);
     //Map *the_map = app.get_map();
     
-
     clutter_main();
     return 0;
 }
