@@ -1,7 +1,5 @@
 /**
- * Clutter spatosc example
- *
- * This example is in the public domain.
+ * Inoui: A map of sounds.
  */
 #include <algorithm>
 #include <clutter/clutter.h>
@@ -24,11 +22,11 @@
 
 static const float WINDOW_WIDTH = 1190;
 static const float WINDOW_HEIGHT = 892;
-static const char *WINDOW_TITLE = "Press arrow keys to move the sound source";
+static const char *WINDOW_TITLE = "Press Escape to quit";
 static const gchar *BACKGROUND_FILE_NAME = "orleans_historique.png";
 static const gchar *SPOT_FILE_NAME = "spot.png";
 static const gint NUM_X = 8;
-static const gint NUM_Y = 8;
+static const gint NUM_Y = 6;
 static const gint FUDI_SEND_PORT = 14444;
 static const std::string OSC_RECEIVE_PORT = "13333";
 
@@ -59,7 +57,7 @@ static void add_point(ExampleApplication *self, gfloat x, gfloat y)
     clutter_actor_set_position(clone, x, y);
 }
 
-static void init_stuff(ExampleApplication *self)
+static void init_map_textures(ExampleApplication *self)
 {
     self->group = clutter_group_new();
     clutter_container_add_actor(CLUTTER_CONTAINER(self->stage), self->group);
@@ -168,7 +166,9 @@ static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
     UNUSED(msec);
     ExampleApplication *app = (ExampleApplication *) data;
     while (app->osc_receiver.get()->receive() != 0)
-    {}
+    {
+        // pass
+    }
 }
 
 void ExampleApplication::on_point_chosen(std::string sound_file_name)
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
-    init_stuff(&app);
+    init_map_textures(&app);
 
     app.avatar_actor = inoui::create_circle(50.0f, &orange);
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);

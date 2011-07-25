@@ -54,6 +54,8 @@ std::string Point::get_next_sound()
 
 void Point::set_position(double x, double y)
 {
-    clutter_actor_set_position(actor_, x, y);
+    x_ = x;
+    y_ = y;
+    clutter_actor_set_position(actor_, x_, y_);
 }
 

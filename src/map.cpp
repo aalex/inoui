@@ -6,6 +6,11 @@ Map::Map()
     closest_point_ = 0;
 }
 
+void Map::set_scale(double scale)
+{
+    scale_ = scale;
+}
+
 bool Map::set_selected(Point *selected)
 {
     bool got_it = false;

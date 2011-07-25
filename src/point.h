@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+/**
+ * A Point is a location, relative to the reference point, 
+ * which contains one or many sounds.
+ */
 class Point
 {
     public:
