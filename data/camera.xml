@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <portvideo>
-    <camera id="1">
+    <camera id="0">
         <image color="false" width="max" height="max" />
         <settings brightness="default" gain="default" shutter="default" gamma="default" sharpness="default" exposure="default" />
     </camera>
