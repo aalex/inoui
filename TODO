@@ -1,0 +1,10 @@
+TODO
+----
+ * use central point as the origin of the map
+ * map sounds when nearby
+ * play sound only when closer than x meters
+ * add sounds
+
+LATER
+-----
+ * use meters as a scale
