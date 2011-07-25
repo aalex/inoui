@@ -12,6 +12,7 @@ headers = \
 	circle.h \
 	point.h \
 	map.h \
+	maths.h \
 	grid.h \
 	unused.h \
 	config.h
