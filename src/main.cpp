@@ -14,7 +14,9 @@
 #include "circle.h"
 #include "grid.h"
 #include "map.h"
+#include "maths.h"
 #include "point.h"
+#include "pprint.h"
 
 #ifndef UNUSED
 #define UNUSED(x) ((void) (x))
@@ -33,7 +35,7 @@ static const std::string OSC_RECEIVE_PORT = "13333";
 /**
  * Info for our little application.
  */
-class ExampleApplication
+class InouiApplication
 {
     public:
         // TODO: make data members private
@@ -42,25 +44,33 @@ class ExampleApplication
         ClutterActor *group;
         ClutterActor *spot_texture;
         std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
-        std::tr1::shared_ptr<Map> map;
+        std::tr1::shared_ptr<Map> map_;
         std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
         void on_point_chosen(std::string sound_file_name);
         void setup_map();
+        void init_map_textures();
+        void populate_map();
+        Map *get_map();
     private:
+        void add_static_point(gfloat x, gfloat y);
 };
 
-static void add_point(ExampleApplication *self, gfloat x, gfloat y)
+Map *InouiApplication::get_map()
 {
-    ClutterActor *clone = clutter_clone_new(self->spot_texture);
-    clutter_container_add_actor(CLUTTER_CONTAINER(self->group), clone);
+    return map_.get();
+}
+
+void InouiApplication::add_static_point(gfloat x, gfloat y)
+{
+    ClutterActor *clone = clutter_clone_new(spot_texture);
+    clutter_actor_set_name(clone, "some-textured-spot");
+    clutter_container_add_actor(CLUTTER_CONTAINER(group), clone);
     clutter_actor_set_anchor_point_from_gravity(clone, CLUTTER_GRAVITY_CENTER);
     clutter_actor_set_position(clone, x, y);
 }
 
-static void init_map_textures(ExampleApplication *self)
+void InouiApplication::init_map_textures()
 {
-    self->group = clutter_group_new();
-    clutter_container_add_actor(CLUTTER_CONTAINER(self->stage), self->group);
 
     // Background map:
     GError *error = NULL;
@@ -71,11 +81,14 @@ static void init_map_textures(ExampleApplication *self)
         g_error_free(error);
     }
     else 
-        clutter_container_add_actor(CLUTTER_CONTAINER(self->group), image);
+    {
+        clutter_actor_set_name(image, "background-image");
+        clutter_container_add_actor(CLUTTER_CONTAINER(group), image);
+    }
 
     // Init the spot's texture:
     error = NULL;
-    self->spot_texture = clutter_texture_new_from_file(SPOT_FILE_NAME, &error);
+    spot_texture = clutter_texture_new_from_file(SPOT_FILE_NAME, &error);
     if (error)
     {
         g_critical("Unable to init image: %s", error->message);
@@ -83,19 +96,20 @@ static void init_map_textures(ExampleApplication *self)
     }
     else 
     {
-        clutter_container_add_actor(CLUTTER_CONTAINER(self->group), self->spot_texture);
-        clutter_actor_hide(self->spot_texture);
+        clutter_actor_set_name(image, "spot-texture");
+        clutter_container_add_actor(CLUTTER_CONTAINER(group), spot_texture);
+        clutter_actor_hide(spot_texture);
     }
 
     int x;
     int y;
-    gfloat x_factor = clutter_actor_get_width(self->stage) / NUM_X;
-    gfloat y_factor = clutter_actor_get_height(self->stage) / NUM_Y;
+    gfloat x_factor = clutter_actor_get_width(stage) / NUM_X;
+    gfloat y_factor = clutter_actor_get_height(stage) / NUM_Y;
     for (x = 0; x < NUM_X; ++x)
     {
         for (y = 0; y < NUM_Y; ++y)
         {
-            add_point(self, 
+            add_static_point(
                 x * x_factor + x_factor / 2,
                 y * y_factor + y_factor / 2);
         }
@@ -120,12 +134,6 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
     }
 }
 
-double radians_to_degrees(double radians)
-{
-    static double ratio = 180.0 / 3.141592653589793238;
-    return radians * ratio;
-}
-
 /**
  * Handles /tuio/2Dobj set sessionID classID pos_x pos_y angle vel_X vel_Y vel_Angle motion_acceleration rotation_acceleration
  */
@@ -134,7 +142,7 @@ int on_2dobj_received(const char * path, const char * types,
 {   
     UNUSED(path);
     UNUSED(types);
-    ExampleApplication *self = static_cast<ExampleApplication*>(user_data);
+    InouiApplication *self = static_cast<InouiApplication*>(user_data);
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
         float pos_x = argv[3]->f;
@@ -147,10 +155,10 @@ int on_2dobj_received(const char * path, const char * types,
         clutter_actor_set_position(self->avatar_actor,
             pos_x * clutter_actor_get_width(CLUTTER_ACTOR(self->stage)),
             pos_y * clutter_actor_get_height(CLUTTER_ACTOR(self->stage)));
-        Point *closest = self->map.get()->get_closest_point(pos_x, pos_y);
+        Point *closest = self->get_map()->get_closest_point(pos_x, pos_y);
         if (closest)
         {
-            self->map.get()->set_selected(closest);
+            self->get_map()->set_selected(closest);
         }
     } else
         return 1;
@@ -164,14 +172,15 @@ static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
 {
     UNUSED(timeline);
     UNUSED(msec);
-    ExampleApplication *app = (ExampleApplication *) data;
+    InouiApplication *app = (InouiApplication *) data;
     while (app->osc_receiver.get()->receive() != 0)
     {
         // pass
     }
 }
 
-void ExampleApplication::on_point_chosen(std::string sound_file_name)
+
+void InouiApplication::on_point_chosen(std::string sound_file_name)
 {
     if (sound_file_name != "")
     {
@@ -182,21 +191,27 @@ void ExampleApplication::on_point_chosen(std::string sound_file_name)
     }
 }
 
-void ExampleApplication::setup_map()
+void InouiApplication::setup_map()
 {
-    map.reset(new Map);
-    map.get()->point_chosen_signal_.connect(boost::bind(&ExampleApplication::on_point_chosen, this, _1));
+    map_.reset(new Map);
+    get_map()->point_chosen_signal_.connect(boost::bind(&InouiApplication::on_point_chosen, this, _1));
+    clutter_container_add_actor(CLUTTER_CONTAINER(group), get_map()->get_actor());
+}
+
+void InouiApplication::populate_map()
+{
+    Map *the_map = get_map();
     Point *point = 0;
-    point = map.get()->add_point(CLUTTER_CONTAINER(stage), 0.0, 0.0);
+
+    point = the_map->add_point(0.0, 0.0);
     point->add_sound("a.wav");
     point->add_sound("b.wav");
-    point = map.get()->add_point(CLUTTER_CONTAINER(stage), 0.1, 0.1);
+
+    point = the_map->add_point(0.1, 0.1);
     point->add_sound("c.wav");
-    point = map.get()->add_point(CLUTTER_CONTAINER(stage), 0.2, 0.2);
+
+    point = the_map->add_point(0.2, 0.2);
     point->add_sound("d.wav");
-    //Point *closest = map.get()->get_closest_point(0.1, 0.12);
-    //if (closest)
-    //    g_print("Found point at %f %f\n", closest->get_x(), closest->get_y());
 }
 
 int main(int argc, char *argv[])
@@ -205,7 +220,7 @@ int main(int argc, char *argv[])
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
     ClutterColor grid_color = { 0xff, 0xff, 0xff, 0x66 };
     ClutterColor orange = { 0xff, 0xcc, 0x33, 0x00 }; /* transparent orange */
-    ExampleApplication app;
+    InouiApplication app;
 
     clutter_init(&argc, &argv);
     stage = clutter_stage_get_default();
@@ -215,9 +230,14 @@ int main(int argc, char *argv[])
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
-    init_map_textures(&app);
+
+    app.group = clutter_group_new();
+    clutter_actor_set_name(app.group, "main-group");
+    clutter_container_add_actor(CLUTTER_CONTAINER(app.stage), app.group);
+    app.init_map_textures();
 
     app.avatar_actor = inoui::create_circle(50.0f, &orange);
+    clutter_actor_set_name(app.avatar_actor, "avatar");
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
             WINDOW_HEIGHT / 2.0f);
@@ -226,17 +246,20 @@ int main(int argc, char *argv[])
     app.osc_receiver.get()->addHandler("/tuio/2Dobj", "siiffffffff", on_2dobj_received, static_cast<void *>(&app));
 
     app.setup_map();
+    app.populate_map();
 
+    // Setup a callback that is called on each frame being rendered
     ClutterTimeline *timeline = clutter_timeline_new(1000);
     clutter_timeline_set_loop(timeline, TRUE);
-    g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
     clutter_timeline_start(timeline);
+    g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
 
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
 
     clutter_actor_show(stage);
+    inoui::print_actors(app.get_map()->get_actor(), 0);
     clutter_main();
     return 0;
 }

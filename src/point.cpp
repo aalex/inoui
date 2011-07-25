@@ -4,32 +4,47 @@
 void Point::set_selected(bool selected)
 {
     selected_ = selected;
-    if (actor_ != NULL)
+    if (circle_ != NULL)
     {
         ClutterColor yes = { 0xff, 0xcc, 0x33, 0x00 };
         ClutterColor no = { 0x99, 0x99, 0xff, 0x00 };
         if (selected)
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(actor_), &yes);
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &yes);
         else
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(actor_), &no);
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &no);
     }
 }
 
-Point::Point(ClutterContainer *parent, double x, double y) :
-    actor_(NULL),
+Point::Point(double scale, double x, double y) :
+    circle_(NULL),
     x_(x),
     y_(y),
     current_(0),
-    selected_(false)
+    selected_(false),
+    scale_(scale)
 {
-    if (parent != NULL)
-    {
-        ClutterColor color = { 0xff, 0xcc, 0x33, 0x00 };
-        actor_ = inoui::create_circle(50.0f, &color);
-        clutter_container_add_actor(parent, actor_);
-        clutter_actor_set_position(actor_, clutter_actor_get_width(CLUTTER_ACTOR(parent)) * x_, clutter_actor_get_height(CLUTTER_ACTOR(parent)) * y_);
-        set_selected(false);
-    }
+    ClutterColor color = { 0xff, 0xcc, 0x33, 0x00 };
+    circle_ = inoui::create_circle(50.0f, &color);
+    group_ = clutter_group_new();
+    clutter_actor_set_name(circle_, "point-circle");
+    clutter_actor_set_name(group_, "point-actor");
+    clutter_container_add_actor(CLUTTER_CONTAINER(group_), circle_);
+    clutter_actor_set_anchor_point_from_gravity(group_, CLUTTER_GRAVITY_CENTER);
+    clutter_actor_set_anchor_point_from_gravity(circle_, CLUTTER_GRAVITY_CENTER);
+    //g_print("point position: %f %f\n", scale_ * x_, scale_ * y_);
+    clutter_actor_set_position(circle_, scale_ * x_, scale_ * y_);
+    set_selected(false);
+}
+
+void Point::set_scale(double scale)
+{
+    scale_ = scale;
+    clutter_actor_set_position(circle_, scale_ * x_, scale_ * y_);
+}
+
+ClutterActor *Point::get_actor()
+{
+    return group_;
 }
 
 bool Point::add_sound(const std::string &name)
@@ -56,6 +71,7 @@ void Point::set_position(double x, double y)
 {
     x_ = x;
     y_ = y;
-    clutter_actor_set_position(actor_, x_, y_);
+    // update the actor's position
+    set_scale(scale_);
 }
 

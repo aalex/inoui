@@ -34,6 +34,12 @@ double demult(double value, double factor)
     return value / factor;
 }
 
+double radians_to_degrees(double radians)
+{
+    static double ratio = 180.0 / 3.141592653589793238;
+    return radians * ratio;
+}
+
 };
 #endif
 

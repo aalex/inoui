@@ -12,7 +12,7 @@
 class Point
 {
     public:
-        Point(ClutterContainer *parent, double x, double y);
+        Point(double scale, double x, double y);
         bool add_sound(const std::string &name);
         void set_position(double x, double y);
         std::string get_next_sound();
@@ -20,13 +20,18 @@ class Point
         double get_y() { return y_; }
         void set_selected(bool selected);
         bool get_selected() { return selected_; }
+        ClutterActor *get_actor();
+        void set_scale(double scale);
     private:
-        ClutterActor *actor_;
+        // actors are not destructed when this object is destroyed
+        ClutterActor *circle_;
+        ClutterActor *group_;
         std::vector<std::string> sounds_;
         double x_;
         double y_;
         unsigned int current_;
         bool selected_;
+        double scale_;
 };
 
 #endif

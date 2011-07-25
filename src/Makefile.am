@@ -13,6 +13,7 @@ headers = \
 	point.h \
 	map.h \
 	maths.h \
+	pprint.h \
 	grid.h \
 	unused.h \
 	config.h
@@ -23,6 +24,7 @@ inoui_SOURCES = \
 	grid.cpp \
 	map.cpp \
 	main.cpp \
+	pprint.cpp \
 	point.cpp \
 	$(headers)
 

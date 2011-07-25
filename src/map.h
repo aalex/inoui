@@ -18,17 +18,20 @@ class Map
          * TODO: actually use it!
          */
         void set_scale(double scale);
-        Point *add_point(ClutterContainer *parent, double x, double y);
+        Point *add_point(double x, double y);
         Point *get_closest_point(double x, double y);
         bool set_selected(Point *selected);
         boost::signals2::signal<void (std::string)> point_chosen_signal_;
+        ClutterActor *get_actor();
         // typedefs:
         typedef std::tr1::shared_ptr<Point> PointPtr ;
         typedef std::vector<PointPtr>::iterator PointIterator ;
     private:
         std::vector<std::tr1::shared_ptr<Point> > points_;
+        // to store a pointer to the latest closest point
         Point *closest_point_;
         double scale_;
+        ClutterActor *group_;
 };
 
 #endif
