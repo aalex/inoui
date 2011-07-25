@@ -205,14 +205,14 @@ void InouiApplication::populate_map()
     Map *the_map = get_map();
     Point *point = 0;
 
-    point = the_map->add_point(300.0, 300.0);
+    point = the_map->add_point(100.0, 100.0);
     point->add_sound("a.wav");
     point->add_sound("b.wav");
 
-    point = the_map->add_point(100.0, 100.0);
+    point = the_map->add_point(200.0, 200.0);
     point->add_sound("c.wav");
 
-    point = the_map->add_point(200.0, 2.00);
+    point = the_map->add_point(300.0, 300.00);
     point->add_sound("d.wav");
 }
 
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     clutter_actor_show(stage);
     
     // print some info:
-    inoui::print_actors(app.get_map()->get_actor(), 0);
+    //inoui::print_actors(app.get_map()->get_actor(), 0);
     //Map *the_map = app.get_map();
     
     clutter_main();
