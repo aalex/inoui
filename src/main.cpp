@@ -24,7 +24,7 @@
 static const float WINDOW_WIDTH = 1190;
 static const float WINDOW_HEIGHT = 892;
 static const char *WINDOW_TITLE = "Press Escape to quit";
-static const gchar *BACKGROUND_FILE_NAME = "orleans_historique.png";
+static const gchar *BACKGROUND_FILE_NAME = "src/orleans_historique.png";
 //static const gchar *SPOT_FILE_NAME = "spot.png";
 //static const gint NUM_X = 8;
 //static const gint NUM_Y = 6;
@@ -159,6 +159,7 @@ int on_2dobj_received(const char * path, const char * types,
         Point *closest = self->get_map()->get_closest_point(pos_x, pos_y);
         if (closest)
         {
+            g_print("Select a point");
             self->get_map()->set_selected(closest);
         }
     }
@@ -186,9 +187,9 @@ void InouiApplication::on_point_chosen(std::string sound_file_name)
 {
     if (sound_file_name != "")
     {
-        //g_print("on_point_chosen: %s\n", sound_file_name.c_str());
-        //std::string message = "play " + sound_file_name + ";";
-        //g_print("Sending FUDI message: %s \n", message.c_str());
+        // g_print("on_point_chosen: %s\n", sound_file_name.c_str());
+        std::string message = "play " + sound_file_name + ";";
+        g_print("Sending FUDI message: %s \n", message.c_str());
         //FIXME: fudi_sender.get()->sendFudi(message);
     }
 }
@@ -220,7 +221,7 @@ int main(int argc, char *argv[])
 {
     ClutterActor *stage = NULL;
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
-    ClutterColor orange = { 0xff, 0xcc, 0x33, 0x00 }; /* transparent orange */
+    ClutterColor avatar_color = { 0xff, 0xcc, 0x33, 0x00 }; /* transparent orange */
     InouiApplication app;
 
     clutter_init(&argc, &argv);
@@ -236,7 +237,7 @@ int main(int argc, char *argv[])
     clutter_container_add_actor(CLUTTER_CONTAINER(app.stage), app.group);
     app.init_map_textures();
 
-    app.avatar_actor = inoui::create_circle(50.0f, &orange);
+    app.avatar_actor = inoui::create_circle(50.0f, &avatar_color);
     clutter_actor_set_name(app.avatar_actor, "avatar");
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,

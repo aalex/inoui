@@ -1,4 +1,6 @@
 #!/usr/bin/env lunch
+# Launches the inoui installation
+# Made for Lunch >= 0.4.0
 add_command("reactivision -c data/reacTIVision.xml", identifier="reactivision")
 add_command("src/inoui", identifier="inoui")
-add_command("pd patches/main.pd", identifier="pd")
+add_command("pd -jack -nomidi -channels 4 -r 48000 patches/main.pd", identifier="pd")

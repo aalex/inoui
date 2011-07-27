@@ -34,6 +34,8 @@ class Point
         bool selected_;
         double scale_;
         void update_label();
+        ClutterColor *selected_color_;
+        ClutterColor *unselected_color_;
 };
 
 #endif

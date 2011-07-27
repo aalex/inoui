@@ -11,14 +11,15 @@ Point::Point(double scale, double x, double y) :
     selected_(false),
     scale_(scale)
 {
+    selected_color_ = clutter_color_new(0xff, 0x00, 0x00, 0x00);
+    unselected_color_ = clutter_color_new(0x99, 0x99, 0xff, 0x00);
     // group
     group_ = clutter_group_new();
     clutter_actor_set_name(group_, "point-actor");
     clutter_actor_set_anchor_point_from_gravity(group_, CLUTTER_GRAVITY_CENTER);
 
     // circle
-    ClutterColor circle_color = { 0x99, 0x99, 0xff, 0x00 };
-    circle_ = inoui::create_circle(50.0f, &circle_color);
+    circle_ = inoui::create_circle(50.0f, unselected_color_);
     clutter_actor_set_name(circle_, "point-circle");
     clutter_actor_set_anchor_point_from_gravity(circle_, CLUTTER_GRAVITY_CENTER);
     clutter_container_add_actor(CLUTTER_CONTAINER(group_), circle_);
@@ -40,12 +41,10 @@ void Point::set_selected(bool selected)
     selected_ = selected;
     if (circle_ != NULL)
     {
-        ClutterColor yes = { 0xff, 0xcc, 0x33, 0x00 };
-        ClutterColor no = { 0x99, 0x99, 0xff, 0x00 };
         if (selected)
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &yes);
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), selected_color_);
         else
-            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), &no);
+            clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), unselected_color_);
     }
 }
 
