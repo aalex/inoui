@@ -22,6 +22,9 @@ void Map::set_scale(double scale)
 
 bool Map::set_selected(Point *selected)
 {
+    if (closest_point_ == selected)
+        return false;
+    // else..
     bool got_it = false;
     PointIterator iter;
     for (iter = points_.begin(); iter < points_.end(); ++iter)
@@ -74,7 +77,7 @@ Point *Map::get_closest_point(double x, double y)
         {
             Point *point = (*iter).get();
             double distance = get_distance(x, y, point->get_x(), point->get_y());
-            //g_print("Point (%f, %f) is %f units far.\n", point->get_x(), point->get_y(), distance);
+            g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
             if (distance < smallest_distance)
             {
                 smallest_distance = distance;

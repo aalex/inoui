@@ -33,6 +33,7 @@ static const std::string OSC_RECEIVE_PORT = "13333";
 static const gint MAP_CENTER_X = 600;
 static const gint MAP_CENTER_Y = 400;
 static const double MAP_SCALE_FACTOR = 10.0; // how many meters per pixel
+static const bool MIRROR_FIDUCIAL_POSITION = true;
 
 /**
  * Info for our little application.
@@ -148,24 +149,32 @@ int on_2dobj_received(const char * path, const char * types,
     {
         float pos_x = argv[3]->f;
         float pos_y = argv[4]->f;
+        if (MIRROR_FIDUCIAL_POSITION)
+        {
+            pos_x = 1.0 - pos_x;
+        }
         // float angle = radians_to_degrees(argv[5]->f);
         // g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
         //     pos_x,
         //     pos_y,
         //     angle);
+        double mapped_x = pos_x * clutter_actor_get_width(CLUTTER_ACTOR(self->stage));
+        double mapped_y = pos_y * clutter_actor_get_height(CLUTTER_ACTOR(self->stage));
+
         clutter_actor_set_position(self->avatar_actor,
-            pos_x * clutter_actor_get_width(CLUTTER_ACTOR(self->stage)),
-            pos_y * clutter_actor_get_height(CLUTTER_ACTOR(self->stage)));
-        Point *closest = self->get_map()->get_closest_point(pos_x, pos_y);
+            mapped_x,
+            mapped_y);
+
+        Point *closest = self->get_map()->get_closest_point(mapped_x, mapped_y);
         if (closest)
         {
-            g_print("Select a point");
+            //g_print("Select a point");
             self->get_map()->set_selected(closest);
         }
     }
     else
         return 1;
-    return 0;            
+    return 0;
 }
 
 /**
@@ -182,14 +191,13 @@ static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
     }
 }
 
-
 void InouiApplication::on_point_chosen(std::string sound_file_name)
 {
     if (sound_file_name != "")
     {
         // g_print("on_point_chosen: %s\n", sound_file_name.c_str());
-        std::string message = "play " + sound_file_name + ";";
-        g_print("Sending FUDI message: %s \n", message.c_str());
+        //std::string message = "play " + sound_file_name + ";";
+        //g_print("Sending FUDI message: %s \n", message.c_str());
         //FIXME: fudi_sender.get()->sendFudi(message);
     }
 }

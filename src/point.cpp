@@ -68,16 +68,13 @@ bool Point::add_sound(const std::string &name)
 
 std::string Point::get_next_sound()
 {
-    unsigned int length = sounds_.size();
+    unsigned int num_sounds = sounds_.size();
+    if (num_sounds == 0)
+        return std::string("");
     ++current_;
-    if (current_ > length)
+    if (current_ >= num_sounds)
         current_ = 0;
-    if (length == 0)
-        return "";
-    else
-    {
-        return sounds_[current_];
-    }
+    return sounds_[current_];
 }
 
 void Point::update_label()
