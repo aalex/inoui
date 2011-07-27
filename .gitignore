@@ -41,3 +41,4 @@ tests/Makefile
 tests/Makefile.in
 calibration.grid
 patches/SONS
+*.bak
