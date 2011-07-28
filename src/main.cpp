@@ -196,10 +196,11 @@ void InouiApplication::on_point_chosen(std::string sound_file_name)
 {
     if (sound_file_name != "")
     {
-        // g_print("on_point_chosen: %s\n", sound_file_name.c_str());
-        //std::string message = "play " + sound_file_name + ";";
-        //g_print("Sending FUDI message: %s \n", message.c_str());
-        //FIXME: fudi_sender.get()->sendFudi(message);
+        //FIXME: 
+        g_print("on_point_chosen: %s\n", sound_file_name.c_str());
+        std::string message = "play " + sound_file_name + ";\n";
+        g_print("Sending FUDI message: %s \n", message.c_str());
+        fudi_sender.get()->sendFudi(message);
     }
 }
 
@@ -270,7 +271,7 @@ int main(int argc, char *argv[])
             static_cast<gpointer>(&app));
 
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
-
+ // true for TCP, false for UDP
     clutter_actor_show(stage);
     
     // print some info:
