@@ -13,11 +13,15 @@ class Point
 {
     public:
         Point(double scale, double x, double y);
-        bool add_sound(const std::string &name);
+        /**
+         * Returns this.
+         */
+        Point *add_sound(const std::string &name);
         void set_position(double x, double y);
         std::string get_next_sound();
         double get_x() { return x_; }
         double get_y() { return y_; }
+        std::string get_x_y_as_string();
         void set_selected(bool selected);
         bool get_selected() { return selected_; }
         ClutterActor *get_actor();

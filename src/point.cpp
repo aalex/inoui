@@ -60,10 +60,10 @@ ClutterActor *Point::get_actor()
     return group_;
 }
 
-bool Point::add_sound(const std::string &name)
+Point *Point::add_sound(const std::string &name)
 {
     sounds_.push_back(name);
-    return true;
+    return this;
 }
 
 std::string Point::get_next_sound()
@@ -93,3 +93,9 @@ void Point::set_position(double x, double y)
     set_scale(scale_);
 }
 
+std::string Point::get_x_y_as_string()
+{
+    std::ostringstream os;
+    os << "(" << x_ << ", " << y_ << ")";
+    return os.str();
+}

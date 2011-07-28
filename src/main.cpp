@@ -168,8 +168,9 @@ int on_2dobj_received(const char * path, const char * types,
         Point *closest = self->get_map()->get_closest_point(mapped_x, mapped_y);
         if (closest)
         {
+            // This is done in Map::get_closest_point
             //g_print("Select a point");
-            self->get_map()->set_selected(closest);
+            //self->get_map()->set_selected(closest);
         }
     }
     else

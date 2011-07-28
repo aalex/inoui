@@ -20,25 +20,36 @@ void Map::set_scale(double scale)
     scale_ = scale;
 }
 
-bool Map::set_selected(Point *selected)
+bool Map::set_selected_point(Point *selected)
 {
-    if (closest_point_ == selected)
+    if (! selected)
         return false;
+    if (closest_point_ == selected)
+    {
+        //g_print("Trying to select the same point as before. (%ld)\n", (long int) selected);
+        return false;
+    }
+
+    closest_point_ = selected;
+    point_chosen_signal_(selected->get_next_sound());
     // else..
     bool got_it = false;
     PointIterator iter;
     for (iter = points_.begin(); iter < points_.end(); ++iter)
     {
-        Point *current = (*iter).get();
+        Point *point = (*iter).get();
         if (selected)
         {
-            if (current == selected)
-                current->set_selected(true);
+            if (point == selected)
+            {
+                g_print("Set selected point to %s.\n", selected->get_x_y_as_string().c_str());
+                point->set_selected(true);
+            }
             else
-                current->set_selected(false);
+                point->set_selected(false);
         }
         else
-            current->set_selected(false);
+            point->set_selected(false);
     }
     if (selected)
         return got_it;
@@ -77,7 +88,7 @@ Point *Map::get_closest_point(double x, double y)
         {
             Point *point = (*iter).get();
             double distance = get_distance(x, y, point->get_x(), point->get_y());
-            g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
+            //g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
             if (distance < smallest_distance)
             {
                 smallest_distance = distance;
@@ -88,8 +99,7 @@ Point *Map::get_closest_point(double x, double y)
         Point *ret = points_.at(closest).get();
         if (ret != closest_point_)
         {
-            closest_point_ = ret;
-            point_chosen_signal_(ret->get_next_sound());
+            set_selected_point(ret);
         }
         return ret;
     }
