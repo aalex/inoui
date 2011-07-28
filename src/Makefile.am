@@ -15,6 +15,7 @@ headers = \
 	maths.h \
 	pprint.h \
 	grid.h \
+	timer.h \
 	unused.h \
 	config.h
 
@@ -26,6 +27,7 @@ inoui_SOURCES = \
 	main.cpp \
 	pprint.cpp \
 	point.cpp \
+	timer.cpp \
 	$(headers)
 
 inoui_CXXFLAGS = \
