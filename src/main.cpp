@@ -16,6 +16,7 @@
 #include "maths.h"
 #include "point.h"
 #include "pprint.h"
+#include "timer.h"
 
 #ifndef UNUSED
 #define UNUSED(x) ((void) (x))
@@ -34,6 +35,7 @@ static const gint MAP_CENTER_X = 600;
 static const gint MAP_CENTER_Y = 400;
 static const double MAP_SCALE_FACTOR = 10.0; // how many meters per pixel
 static const bool MIRROR_FIDUCIAL_POSITION = true;
+static const double TIME_BETWEEN_EACH_PLAY = 0.5; // seconds
 
 /**
  * Info for our little application.
@@ -41,6 +43,7 @@ static const bool MIRROR_FIDUCIAL_POSITION = true;
 class InouiApplication
 {
     public:
+        InouiApplication();
         // TODO: make data members private
         ClutterActor *avatar_actor;
         ClutterActor *stage;
@@ -50,17 +53,32 @@ class InouiApplication
         std::tr1::shared_ptr<Map> map_;
         std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
         void on_point_chosen(std::string sound_file_name);
+        void send_play_message_if_needed();
         void setup_map();
         void init_map_textures();
         void populate_map();
         Map *get_map();
+        void reset_timer();
     private:
         void add_static_point(gfloat x, gfloat y);
+        std::tr1::shared_ptr<Timer> timer_last_played_;
+        std::string next_sound_to_play_;
 };
 
 Map *InouiApplication::get_map()
 {
     return map_.get();
+}
+
+InouiApplication::InouiApplication()
+{
+    timer_last_played_.reset(new Timer);
+    next_sound_to_play_ = std::string("");
+}
+
+void InouiApplication::reset_timer()
+{
+    timer_last_played_.get()->start();
 }
 
 // void InouiApplication::add_static_point(gfloat x, gfloat y)
@@ -190,17 +208,32 @@ static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
     {
         // pass
     }
+    app->send_play_message_if_needed();
 }
 
 void InouiApplication::on_point_chosen(std::string sound_file_name)
 {
     if (sound_file_name != "")
     {
-        //FIXME: 
         g_print("on_point_chosen: %s\n", sound_file_name.c_str());
-        std::string message = "play " + sound_file_name + ";\n";
-        g_print("Sending FUDI message: %s \n", message.c_str());
-        fudi_sender.get()->sendFudi(message);
+        next_sound_to_play_ = sound_file_name;
+    }
+}
+
+void InouiApplication::send_play_message_if_needed()
+{
+    Timer *timer = timer_last_played_.get();
+    //g_print("Elapsed=%f, next_sound_to_play_=%s\n", timer->elapsed(), next_sound_to_play_.c_str());
+    if (next_sound_to_play_ != "")
+    {
+        if (timer->elapsed() >= TIME_BETWEEN_EACH_PLAY)
+        {
+            timer->start();
+            std::string message = "play " + next_sound_to_play_ + ";\n";
+            g_print("Sending FUDI message: %s \n", message.c_str());
+            fudi_sender.get()->sendFudi(message);
+            next_sound_to_play_ = "";
+        }
     }
 }
 
@@ -225,6 +258,14 @@ void InouiApplication::populate_map()
 
     point = the_map->add_point(300.0, 300.00);
     point->add_sound("d.wav");
+}
+
+void on_stage_realized(ClutterActor *stage, gpointer *data)
+{
+    g_print("on_stage_realized\n");
+    UNUSED(stage);
+    InouiApplication *app = (InouiApplication *) data;
+    app->reset_timer();
 }
 
 int main(int argc, char *argv[])
@@ -269,6 +310,8 @@ int main(int argc, char *argv[])
     g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
+    g_signal_connect(stage, "show", G_CALLBACK(on_stage_realized),
+            static_cast<gpointer>(&app));
 
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
  // true for TCP, false for UDP
@@ -278,6 +321,7 @@ int main(int argc, char *argv[])
     //inoui::print_actors(app.get_map()->get_actor(), 0);
     //Map *the_map = app.get_map();
     
+    g_print("Running inoui.\n");
     clutter_main();
     return 0;
 }
