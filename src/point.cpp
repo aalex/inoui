@@ -30,7 +30,7 @@ Point::Point(double x, double y) :
     clutter_actor_set_anchor_point_from_gravity(text_, CLUTTER_GRAVITY_CENTER);
     clutter_container_add_actor(CLUTTER_CONTAINER(group_), text_);
 
-    clutter_actor_set_position(circle_, x_, y_);
+    clutter_actor_set_position(group_, x_, y_);
     update_label();
     set_selected(false);
 }
@@ -72,7 +72,7 @@ std::string Point::get_next_sound()
 void Point::update_label()
 {
     std::ostringstream os;
-    os << "Point (" << x_ << ", " << y_ << ")";
+    os << "" << x_ << "," << y_ << "";
     //std::cout << os.str();
     clutter_text_set_text(CLUTTER_TEXT(text_), os.str().c_str());
 }
@@ -82,7 +82,7 @@ void Point::set_position(double x, double y)
     x_ = x;
     y_ = y;
     // update the actor's position
-    clutter_actor_set_position(circle_, x_, y_);
+    clutter_actor_set_position(group_, x_, y_);
     update_label();
 }
 

@@ -75,7 +75,7 @@ Point *Map::get_closest_point(double x, double y)
         {
             Point *point = (*iter).get();
             double distance = inoui::get_distance(x, y, point->get_x(), point->get_y());
-            g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
+            //g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
             if (distance < smallest_distance)
             {
                 smallest_distance = distance;

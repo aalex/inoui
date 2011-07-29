@@ -9,6 +9,7 @@
 #include <sstream>
 #include <tr1/memory>
 #include <vector>
+#include <iostream>
 
 #include "avatar.h"
 #include "circle.h"
@@ -36,11 +37,12 @@ static const bool MIRROR_FIDUCIAL_POSITION = true;
 static const double TIME_BETWEEN_EACH_PLAY = 0.5; // seconds
 // FIXME: hard-coding paths is evil
 static const std::string SOUNDS_PREFIX = "/home/aalex/SONS/";
-static const double MAP_X_FROM = 0.0;
-static const double MAP_X_TO = 1.0;
-static const double MAP_Y_FROM = 0.0;
-static const double MAP_Y_TO = 1.0;
+static const double MAP_X_FROM = -0.1;
+static const double MAP_X_TO = 1.1;
+static const double MAP_Y_FROM = -0.1;
+static const double MAP_Y_TO = 1.1;
 static const int SEND_ANGLE_EVERY = 15;
+static const double CAMERA_RATIO = 1.0;
 
 /**
  * Info for our little application.
@@ -133,13 +135,13 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
 
 double map_x_tag_pos_to_pixel(double x)
 {
-    x = inoui::map_double(x, 0.0, 1.0, MAP_X_FROM, MAP_X_TO);
-    return x * WINDOW_HEIGHT;
+    x = inoui::map_double(x, 0.0, CAMERA_RATIO, MAP_X_FROM, MAP_X_TO);
+    return x * WINDOW_WIDTH;
 }
 
 double map_y_tag_pos_to_pixel(double y)
 {
-    y = inoui::map_double(y, 0.0, 1.0, MAP_Y_FROM, MAP_Y_TO);
+    y = inoui::map_double(y, 0.0, CAMERA_RATIO, MAP_Y_FROM, MAP_Y_TO);
     return y * WINDOW_HEIGHT;
 }
 
@@ -156,9 +158,10 @@ int on_2dobj_received(const char * path, const char * types,
     {
         double pos_x = (double) argv[3]->f;
         double pos_y = (double) argv[4]->f;
+        std::cout << "Fiducial is at " << pos_x << "," << pos_y << std::endl;
         if (MIRROR_FIDUCIAL_POSITION)
         {
-            pos_x = 1.0 - pos_x;
+            pos_x = CAMERA_RATIO - pos_x;
         }
         double mapped_x = map_x_tag_pos_to_pixel(pos_x);
         double mapped_y = map_y_tag_pos_to_pixel(pos_y);
@@ -275,6 +278,35 @@ void InouiApplication::populate_map()
     point = the_map->add_point(300.0, 300.00);
     point->add_sound("SR021-quad.wav");
     point->add_sound("SR022-quad.wav");
+
+    point = the_map->add_point(500.0, 500.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(100.0, 500.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(800.0, 500.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(800.0, 200.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(1000.0, 200.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(1000.0, 800.00);
+    point->add_sound("SR021-quad.wav");
+
+    for (int x = 0; x < 8; x++)
+    {
+        for (int y = 0; y < 6; y++)
+        {
+            point = the_map->add_point(
+                x / 8.0 * WINDOW_WIDTH,
+                y / 6.0 * WINDOW_HEIGHT);
+            point->add_sound("SR021-quad.wav");
+        }
+    }
 }
 
 static void on_stage_shown(ClutterActor *stage, gpointer *data)
@@ -322,7 +354,7 @@ int main(int argc, char *argv[])
     //inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
     ClutterColor text_color = { 0xff, 0xff, 0xff, 0xff };
-    app.coord_label_ = clutter_text_new_full("Sans semibold 12px", "0x0", &text_color);
+    app.coord_label_ = clutter_text_new_full("Sans semibold 12px", "Use a fiducial to move the avatar", &text_color);
     clutter_actor_set_name(app.coord_label_, "coords-text");
     clutter_actor_set_position(app.coord_label_, WINDOW_WIDTH - 200, WINDOW_HEIGHT - 15);
     clutter_container_add_actor(CLUTTER_CONTAINER(app.group), app.coord_label_);
