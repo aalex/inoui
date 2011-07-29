@@ -2,8 +2,7 @@
 #include <cmath>
 #include <clutter/clutter.h>
 
-Map::Map() :
-    scale_(1.0)
+Map::Map()
 {
     closest_point_ = 0;
     group_ = clutter_group_new();
@@ -15,10 +14,6 @@ ClutterActor *Map::get_actor()
     return group_;
 }
 
-void Map::set_scale(double scale)
-{
-    scale_ = scale;
-}
 
 bool Map::set_selected_point(Point *selected)
 {
@@ -59,7 +54,7 @@ bool Map::set_selected_point(Point *selected)
 
 Point *Map::add_point(double x, double y)
 {
-    points_.push_back(PointPtr(new Point(scale_, x, y)));
+    points_.push_back(PointPtr(new Point(x, y)));
     Point *point = points_.at(points_.size() - 1).get();
     clutter_container_add_actor(CLUTTER_CONTAINER(group_), point->get_actor());
     return point;

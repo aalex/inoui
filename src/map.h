@@ -12,12 +12,6 @@ class Map
 {
     public:
         Map();
-        /**
-         * Sets the scale of the map.
-         * For example, a map might have a scale of 10 m per pixel.
-         * TODO: actually use it!
-         */
-        void set_scale(double scale);
         Point *add_point(double x, double y);
         Point *get_closest_point(double x, double y);
         /**
@@ -33,7 +27,6 @@ class Map
         std::vector<std::tr1::shared_ptr<Point> > points_;
         // to store a pointer to the latest closest point
         Point *closest_point_;
-        double scale_;
         ClutterActor *group_;
 };
 

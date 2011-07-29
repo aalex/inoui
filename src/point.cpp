@@ -3,13 +3,12 @@
 #include "point.h"
 #include "circle.h"
 
-Point::Point(double scale, double x, double y) :
+Point::Point(double x, double y) :
     circle_(NULL),
     x_(x),
     y_(y),
     current_(0),
-    selected_(false),
-    scale_(scale)
+    selected_(false)
 {
     selected_color_ = clutter_color_new(0xff, 0xff, 0x00, 0x00);
     unselected_color_ = clutter_color_new(0x66, 0x66, 0x66, 0x00);
@@ -31,8 +30,8 @@ Point::Point(double scale, double x, double y) :
     clutter_actor_set_anchor_point_from_gravity(text_, CLUTTER_GRAVITY_CENTER);
     clutter_container_add_actor(CLUTTER_CONTAINER(group_), text_);
 
-    set_scale(scale_);
-    //update_label();
+    clutter_actor_set_position(circle_, x_, y_);
+    update_label();
     set_selected(false);
 }
 
@@ -46,13 +45,6 @@ void Point::set_selected(bool selected)
         else
             clutter_rectangle_set_color(CLUTTER_RECTANGLE(circle_), unselected_color_);
     }
-}
-
-void Point::set_scale(double scale)
-{
-    scale_ = scale;
-    clutter_actor_set_position(circle_, scale_ * x_, scale_ * y_);
-    update_label();
 }
 
 ClutterActor *Point::get_actor()
@@ -90,7 +82,8 @@ void Point::set_position(double x, double y)
     x_ = x;
     y_ = y;
     // update the actor's position
-    set_scale(scale_);
+    clutter_actor_set_position(circle_, x_, y_);
+    update_label();
 }
 
 std::string Point::get_x_y_as_string()

@@ -35,11 +35,15 @@ static const gint FUDI_SEND_PORT = 14444;
 static const std::string OSC_RECEIVE_PORT = "13333";
 static const gint MAP_CENTER_X = 600;
 static const gint MAP_CENTER_Y = 400;
-static const double MAP_SCALE_FACTOR = 10.0; // how many meters per pixel
 static const bool MIRROR_FIDUCIAL_POSITION = true;
 static const double TIME_BETWEEN_EACH_PLAY = 0.5; // seconds
 // FIXME: hard-coding paths is evil
 static const std::string SOUNDS_PREFIX = "/home/aalex/SONS/";
+static const double MAP_X_FROM = 0.0;
+static const double MAP_X_TO = 1.0;
+static const double MAP_Y_FROM = 0.0;
+static const double MAP_Y_TO = 1.0;
+static const int SEND_ANGLE_EVERY = 15;
 
 /**
  * Info for our little application.
@@ -53,9 +57,11 @@ class InouiApplication
         ClutterActor *stage;
         ClutterActor *group;
         ClutterActor *spot_texture;
+        int angle_sender_counter_;
         std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
         std::tr1::shared_ptr<Map> map_;
         std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
+        double angle_;
         void on_point_chosen(std::string sound_file_name);
         /**
          * Sends a message to Pd in the form "play <file> <duration>".
@@ -63,6 +69,7 @@ class InouiApplication
          * Durations sent to Pd are are in ms.
          */
         void send_play_message_if_needed();
+        void send_angle_message();
         void setup_map();
         void init_map_textures();
         void populate_map();
@@ -174,14 +181,14 @@ int on_2dobj_received(const char * path, const char * types,
     InouiApplication *self = static_cast<InouiApplication*>(user_data);
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
-        float pos_x = argv[3]->f;
-        float pos_y = argv[4]->f;
+        double pos_x = (double) argv[3]->f;
+        double pos_y = (double) argv[4]->f;
         if (MIRROR_FIDUCIAL_POSITION)
         {
             pos_x = 1.0 - pos_x;
         }
-        // float angle = radians_to_degrees(argv[5]->f);
-        // g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
+        pos_x = inoui::map_double(pos_x, 0.0, 1.0, MAP_X_FROM, MAP_X_TO);
+        pos_y = inoui::map_double(pos_y, 0.0, 1.0, MAP_Y_FROM, MAP_Y_TO);
         //     pos_x,
         //     pos_y,
         //     angle);
@@ -199,6 +206,10 @@ int on_2dobj_received(const char * path, const char * types,
             //g_print("Select a point");
             //self->get_map()->set_selected(closest);
         }
+
+        double angle = (double) inoui::radians_to_degrees(argv[5]->f);
+        self->angle_ = angle;
+        // g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
     }
     else
         return 1;
@@ -218,6 +229,7 @@ static void on_paint(ClutterTimeline *timeline, gint msec, gpointer data)
         // pass
     }
     app->send_play_message_if_needed();
+    app->send_angle_message();
 }
 
 void InouiApplication::on_point_chosen(std::string sound_file_name)
@@ -250,6 +262,18 @@ void InouiApplication::send_play_message_if_needed()
             fudi_sender.get()->sendFudi(message.str());
             next_sound_to_play_ = "";
         }
+    }
+}
+
+void InouiApplication::send_angle_message()
+{
+    ++angle_sender_counter_;
+    if ((angle_sender_counter_ % SEND_ANGLE_EVERY) == 0)
+    {
+        std::ostringstream message;
+        message << "angle " << angle_ << ";\n";
+        //g_print("Sending FUDI message: %s \n", message.str().c_str());
+        fudi_sender.get()->sendFudi(message.str());
     }
 }
 
@@ -295,6 +319,7 @@ int main(int argc, char *argv[])
     clutter_init(&argc, &argv);
     stage = clutter_stage_get_default();
     app.stage = stage;
+    app.angle_sender_counter_ = 0;
     clutter_stage_set_color(CLUTTER_STAGE(stage), &black);
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -315,6 +340,7 @@ int main(int argc, char *argv[])
 
     app.setup_map();
     app.populate_map();
+    app.angle_ = 0.0;
 
     ClutterColor grid_color = { 0x00, 0x00, 0x00, 0x11 };
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);

@@ -12,7 +12,7 @@
 class Point
 {
     public:
-        Point(double scale, double x, double y);
+        Point(double x, double y);
         /**
          * Returns this.
          */
@@ -25,7 +25,6 @@ class Point
         void set_selected(bool selected);
         bool get_selected() { return selected_; }
         ClutterActor *get_actor();
-        void set_scale(double scale);
     private:
         // actors are not destructed when this object is destroyed
         ClutterActor *circle_;
@@ -36,7 +35,6 @@ class Point
         double y_;
         unsigned int current_;
         bool selected_;
-        double scale_;
         void update_label();
         ClutterColor *selected_color_;
         ClutterColor *unselected_color_;
