@@ -15,6 +15,7 @@ headers = \
 	maths.h \
 	pprint.h \
 	grid.h \
+	soundinfo.h \
 	timer.h \
 	unused.h \
 	config.h
@@ -27,6 +28,7 @@ inoui_SOURCES = \
 	main.cpp \
 	pprint.cpp \
 	point.cpp \
+	soundinfo.cpp \
 	timer.cpp \
 	$(headers)
 
@@ -35,6 +37,7 @@ inoui_CXXFLAGS = \
 	$(BOOST_CPPFLAGS) \
 	$(CLUTTER_CFLAGS) \
 	$(SPATOSC_CFLAGS) \
+	$(SNDFILE_CFLAGS) \
 	$(LIBM_CXXFLAGS) \
 	$(LIBTHREAD_CXXFLAGS) \
 	$(LIBXML_XFLAGS)
@@ -47,6 +50,7 @@ inoui_LDADD = \
 	$(BOOST_SYSTEM_LIB) \
 	$(BOOST_THREAD_LIB) \
 	$(CLUTTER_LIBS) \
+	$(SNDFILE_LIBS) \
 	$(SPATOSC_LIBS) \
 	$(LIBM_LIBS) \
 	$(LIBTHREAD_LIBS) \
