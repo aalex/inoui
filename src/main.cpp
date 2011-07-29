@@ -6,6 +6,7 @@
 #include <spatosc/fudi_sender.h>
 #include <spatosc/oscreceiver.h>
 #include <string>
+#include <sstream>
 #include <tr1/memory>
 #include <vector>
 
@@ -16,6 +17,7 @@
 #include "maths.h"
 #include "point.h"
 #include "pprint.h"
+#include "soundinfo.h"
 #include "timer.h"
 
 #ifndef UNUSED
@@ -36,6 +38,8 @@ static const gint MAP_CENTER_Y = 400;
 static const double MAP_SCALE_FACTOR = 10.0; // how many meters per pixel
 static const bool MIRROR_FIDUCIAL_POSITION = true;
 static const double TIME_BETWEEN_EACH_PLAY = 0.5; // seconds
+// FIXME: hard-coding paths is evil
+static const std::string SOUNDS_PREFIX = "/home/aalex/SONS/";
 
 /**
  * Info for our little application.
@@ -53,6 +57,11 @@ class InouiApplication
         std::tr1::shared_ptr<Map> map_;
         std::tr1::shared_ptr<spatosc::FudiSender> fudi_sender;
         void on_point_chosen(std::string sound_file_name);
+        /**
+         * Sends a message to Pd in the form "play <file> <duration>".
+         * Messages are sent at a maximum rate of every TIME_BETWEEN_EACH_PLAY seconds.
+         * Durations sent to Pd are are in ms.
+         */
         void send_play_message_if_needed();
         void setup_map();
         void init_map_textures();
@@ -229,9 +238,16 @@ void InouiApplication::send_play_message_if_needed()
         if (timer->elapsed() >= TIME_BETWEEN_EACH_PLAY)
         {
             timer->start();
-            std::string message = "play " + next_sound_to_play_ + ";\n";
-            g_print("Sending FUDI message: %s \n", message.c_str());
-            fudi_sender.get()->sendFudi(message);
+            std::ostringstream message;
+            std::ostringstream file_name;
+            file_name << SOUNDS_PREFIX << next_sound_to_play_;
+            // get sound file duration
+            // FIXME: getting sndfile duration should be done only once for each file
+            long int duration_ms = inoui::get_sound_file_duration(file_name.str());
+            message << "play " << file_name.str() << " " << duration_ms << ";\n";
+            g_print("Sending FUDI message: %s \n", message.str().c_str());
+            // send sound file info to pd
+            fudi_sender.get()->sendFudi(message.str());
             next_sound_to_play_ = "";
         }
     }
@@ -250,14 +266,15 @@ void InouiApplication::populate_map()
     Point *point = 0;
 
     point = the_map->add_point(100.0, 100.0);
-    point->add_sound("a.wav");
-    point->add_sound("b.wav");
+    point->add_sound("SR018-quad.wav");
+    point->add_sound("SR019-quad.wav");
 
     point = the_map->add_point(200.0, 200.0);
-    point->add_sound("c.wav");
+    point->add_sound("SR020-quad.wav");
 
     point = the_map->add_point(300.0, 300.00);
-    point->add_sound("d.wav");
+    point->add_sound("SR021-quad.wav");
+    point->add_sound("SR022-quad.wav");
 }
 
 static void on_stage_shown(ClutterActor *stage, gpointer *data)
