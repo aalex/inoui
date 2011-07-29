@@ -1,4 +1,5 @@
 #include "map.h"
+#include "maths.h"
 #include <cmath>
 #include <clutter/clutter.h>
 
@@ -13,7 +14,6 @@ ClutterActor *Map::get_actor()
 {
     return group_;
 }
-
 
 bool Map::set_selected_point(Point *selected)
 {
@@ -60,14 +60,6 @@ Point *Map::add_point(double x, double y)
     return point;
 }
 
-static double get_distance(double x1, double y1, double x2, double y2)
-{
-    return std::sqrt(
-            std::abs(std::pow(std::abs(x2 - x1), 2.0)) + 
-            std::abs(std::pow(std::abs(y2 - y1), 2.0))
-        );
-}
-
 Point *Map::get_closest_point(double x, double y)
 {
     if (points_.size() == 0)
@@ -82,8 +74,8 @@ Point *Map::get_closest_point(double x, double y)
         for (iter = points_.begin(); iter < points_.end(); ++iter)
         {
             Point *point = (*iter).get();
-            double distance = get_distance(x, y, point->get_x(), point->get_y());
-            //g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
+            double distance = inoui::get_distance(x, y, point->get_x(), point->get_y());
+            g_print("Point (%f, %f) is %f units far from (%f, %f).\n", point->get_x(), point->get_y(), distance, x, y);
             if (distance < smallest_distance)
             {
                 smallest_distance = distance;

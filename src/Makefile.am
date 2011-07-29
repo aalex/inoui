@@ -25,6 +25,7 @@ inoui_SOURCES = \
 	circle.cpp \
 	grid.cpp \
 	map.cpp \
+	maths.cpp \
 	main.cpp \
 	pprint.cpp \
 	point.cpp \

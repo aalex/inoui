@@ -2,6 +2,7 @@
 #define __MATHS_H__
 
 #include <algorithm>
+#include <cmath>
 
 namespace inoui
 {
@@ -17,29 +18,13 @@ namespace inoui
  *
  * Depends on: #include <algorithm>
  */
-double map_double(double value, double istart, double istop, double ostart, double ostop)
-{
-    double ret = ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
-    // In Processing, they don't do the following: (clipping)
-    return std::max(std::min(ret, ostop), ostart);
-}
+double map_double(double value, double istart, double istop, double ostart, double ostop);
 
-double mult(double value, double factor)
-{
-    return value * factor;
-}
+double radians_to_degrees(double radians);
 
-double demult(double value, double factor)
-{
-    return value / factor;
-}
+double get_distance(double x1, double y1, double x2, double y2);
 
-double radians_to_degrees(double radians)
-{
-    static double ratio = 180.0 / 3.141592653589793238;
-    return radians * ratio;
-}
+}; // end of namespace
 
-};
 #endif
 
