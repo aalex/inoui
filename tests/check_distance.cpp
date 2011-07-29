@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
 
     if (! test(0.0, 0.0, 1.0, 1.0, 1.414213562))
         return 1;
+    if (! test(0.0, 0.0, 0.0, 2.0, 2.0))
+        return 1;
+    if (! test(0.0, 0.0, 3.0, 4.0, 5.0))
+        return 1;
     return 0;
 }
 
