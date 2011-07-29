@@ -260,9 +260,9 @@ void InouiApplication::populate_map()
     point->add_sound("d.wav");
 }
 
-void on_stage_realized(ClutterActor *stage, gpointer *data)
+static void on_stage_shown(ClutterActor *stage, gpointer *data)
 {
-    g_print("on_stage_realized\n");
+    //g_print("on_stage_shown\n");
     UNUSED(stage);
     InouiApplication *app = (InouiApplication *) data;
     app->reset_timer();
@@ -281,7 +281,6 @@ int main(int argc, char *argv[])
     clutter_stage_set_color(CLUTTER_STAGE(stage), &black);
     clutter_stage_set_title(CLUTTER_STAGE(stage), WINDOW_TITLE);
     clutter_actor_set_size(stage, WINDOW_WIDTH, WINDOW_HEIGHT);
-
 
     app.group = clutter_group_new();
     clutter_actor_set_name(app.group, "main-group");
@@ -310,7 +309,7 @@ int main(int argc, char *argv[])
     g_signal_connect(timeline, "new-frame", G_CALLBACK(on_paint), static_cast<void *>(&app));
     g_signal_connect(stage, "key-press-event", G_CALLBACK(key_event_cb),
             static_cast<gpointer>(&app));
-    g_signal_connect(stage, "show", G_CALLBACK(on_stage_realized),
+    g_signal_connect(stage, "show", G_CALLBACK(on_stage_shown),
             static_cast<gpointer>(&app));
 
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
