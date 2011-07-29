@@ -12,7 +12,6 @@ config.log
 config.status
 config.sub
 configure
-configure.ac
 data/Makefile
 data/Makefile.in
 depcomp
