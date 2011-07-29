@@ -1,3 +1,4 @@
+*.bak
 *.o
 .*.swp
 COPYING
@@ -7,6 +8,7 @@ Makefile.in
 aclocal.m4
 assets/run
 autom4te.cache/
+calibration.grid
 config.guess
 config.log
 config.status
@@ -25,6 +27,7 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 missing
+patches/SONS
 prototypes/pyo_stuff/nuages.py
 prototypes/pyo_stuff/sounds/
 prototypes/tuio/clutterspat
@@ -36,8 +39,7 @@ src/config.h.in
 src/doxyfile
 src/inoui
 src/stamp-h1
+tests/.deps/
 tests/Makefile
 tests/Makefile.in
-calibration.grid
-patches/SONS
-*.bak
+tests/check_distance
