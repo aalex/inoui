@@ -338,13 +338,12 @@ int main(int argc, char *argv[])
             static_cast<gpointer>(&app));
 
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
- // true for TCP, false for UDP
+    // true for TCP, false for UDP
     clutter_actor_show(stage);
     
     // print some info:
     //inoui::print_actors(app.get_map()->get_actor(), 0);
     //Map *the_map = app.get_map();
-    
     g_print("Running inoui.\n");
     clutter_main();
     return 0;
