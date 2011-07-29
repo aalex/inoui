@@ -129,6 +129,18 @@ static void key_event_cb(ClutterActor *actor, ClutterKeyEvent *event,
     }
 }
 
+double map_x_tag_pos_to_pixel(double x)
+{
+    x = inoui::map_double(x, 0.0, 1.0, MAP_X_FROM, MAP_X_TO);
+    return x * WINDOW_HEIGHT;
+}
+
+double map_y_tag_pos_to_pixel(double y)
+{
+    y = inoui::map_double(y, 0.0, 1.0, MAP_Y_FROM, MAP_Y_TO);
+    return y * WINDOW_HEIGHT;
+}
+
 /**
  * Handles /tuio/2Dobj set sessionID classID pos_x pos_y angle vel_X vel_Y vel_Angle motion_acceleration rotation_acceleration
  */
@@ -146,13 +158,8 @@ int on_2dobj_received(const char * path, const char * types,
         {
             pos_x = 1.0 - pos_x;
         }
-        pos_x = inoui::map_double(pos_x, 0.0, 1.0, MAP_X_FROM, MAP_X_TO);
-        pos_y = inoui::map_double(pos_y, 0.0, 1.0, MAP_Y_FROM, MAP_Y_TO);
-        //     pos_x,
-        //     pos_y,
-        //     angle);
-        double mapped_x = pos_x * clutter_actor_get_width(CLUTTER_ACTOR(self->stage));
-        double mapped_y = pos_y * clutter_actor_get_height(CLUTTER_ACTOR(self->stage));
+        double mapped_x = map_x_tag_pos_to_pixel(pos_x);
+        double mapped_y = map_y_tag_pos_to_pixel(pos_y);
 
         clutter_actor_set_position(self->avatar_actor,
             mapped_x,
