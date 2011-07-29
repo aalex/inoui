@@ -28,9 +28,6 @@ static const float WINDOW_WIDTH = 1024;
 static const float WINDOW_HEIGHT = 768;
 static const char *WINDOW_TITLE = "Paysages inouïs d'Orléans ~ Press Escape to quit";
 static const gchar *BACKGROUND_FILE_NAME = "data/orleans_1024x768.png";
-//static const gchar *SPOT_FILE_NAME = "spot.png";
-//static const gint NUM_X = 8;
-//static const gint NUM_Y = 6;
 static const gint FUDI_SEND_PORT = 14444;
 static const std::string OSC_RECEIVE_PORT = "13333";
 static const gint MAP_CENTER_X = 600;
@@ -97,15 +94,6 @@ void InouiApplication::reset_timer()
     timer_last_played_.get()->start();
 }
 
-// void InouiApplication::add_static_point(gfloat x, gfloat y)
-// {
-//     ClutterActor *clone = clutter_clone_new(spot_texture);
-//     clutter_actor_set_name(clone, "some-textured-spot");
-//     clutter_container_add_actor(CLUTTER_CONTAINER(group), clone);
-//     clutter_actor_set_anchor_point_from_gravity(clone, CLUTTER_GRAVITY_CENTER);
-//     clutter_actor_set_position(clone, x, y);
-// }
-// 
 void InouiApplication::init_map_textures()
 {
     // Background map:
@@ -121,35 +109,6 @@ void InouiApplication::init_map_textures()
         clutter_actor_set_name(image, "background-image");
         clutter_container_add_actor(CLUTTER_CONTAINER(group), image);
     }
-
-//     // Init the spot's texture:
-//     error = NULL;
-//     spot_texture = clutter_texture_new_from_file(SPOT_FILE_NAME, &error);
-//     if (error)
-//     {
-//         g_critical("Unable to init image: %s", error->message);
-//         g_error_free(error);
-//     }
-//     else 
-//     {
-//         clutter_actor_set_name(image, "spot-texture");
-//         clutter_container_add_actor(CLUTTER_CONTAINER(group), spot_texture);
-//         clutter_actor_hide(spot_texture);
-//     }
-// 
-//     int x;
-//     int y;
-//     gfloat x_factor = clutter_actor_get_width(stage) / NUM_X;
-//     gfloat y_factor = clutter_actor_get_height(stage) / NUM_Y;
-//     for (x = 0; x < NUM_X; ++x)
-//     {
-//         for (y = 0; y < NUM_Y; ++y)
-//         {
-//             add_static_point(
-//                 x * x_factor + x_factor / 2,
-//                 y * y_factor + y_factor / 2);
-//         }
-//     }
 }
 
 /**
