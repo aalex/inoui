@@ -24,10 +24,10 @@
 #define UNUSED(x) ((void) (x))
 #endif
 
-static const float WINDOW_WIDTH = 1190;
-static const float WINDOW_HEIGHT = 892;
-static const char *WINDOW_TITLE = "Press Escape to quit";
-static const gchar *BACKGROUND_FILE_NAME = "src/orleans_historique.png";
+static const float WINDOW_WIDTH = 1024;
+static const float WINDOW_HEIGHT = 768;
+static const char *WINDOW_TITLE = "Paysages inouïs d'Orléans ~ Press Escape to quit";
+static const gchar *BACKGROUND_FILE_NAME = "data/orleans_1024x768.png";
 //static const gchar *SPOT_FILE_NAME = "spot.png";
 //static const gint NUM_X = 8;
 //static const gint NUM_Y = 6;
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
 {
     ClutterActor *stage = NULL;
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
-    ClutterColor avatar_color = { 0xff, 0xcc, 0x33, 0x00 }; /* transparent orange */
+    ClutterColor avatar_color = { 0x99, 0x00, 0x00, 0x00 };
     InouiApplication app;
 
     clutter_init(&argc, &argv);
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
     clutter_container_add_actor(CLUTTER_CONTAINER(app.stage), app.group);
     app.init_map_textures();
 
-    app.avatar_actor = inoui::create_circle(50.0f, &avatar_color);
+    app.avatar_actor = inoui::create_circle(25.0f, &avatar_color);
     clutter_actor_set_name(app.avatar_actor, "avatar");
     clutter_container_add_actor(CLUTTER_CONTAINER(stage), app.avatar_actor);
     clutter_actor_set_position(app.avatar_actor, WINDOW_WIDTH / 2.0f,
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
     app.setup_map();
     app.populate_map();
 
-    ClutterColor grid_color = { 0xff, 0xff, 0xff, 0x33 };
+    ClutterColor grid_color = { 0x00, 0x00, 0x00, 0x11 };
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
     // Setup a callback that is called on each frame being rendered

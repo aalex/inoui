@@ -11,15 +11,15 @@ Point::Point(double scale, double x, double y) :
     selected_(false),
     scale_(scale)
 {
-    selected_color_ = clutter_color_new(0xff, 0x00, 0x00, 0x00);
-    unselected_color_ = clutter_color_new(0x99, 0x99, 0xff, 0x00);
+    selected_color_ = clutter_color_new(0xff, 0xff, 0x00, 0x00);
+    unselected_color_ = clutter_color_new(0x66, 0x66, 0x66, 0x00);
     // group
     group_ = clutter_group_new();
     clutter_actor_set_name(group_, "point-actor");
     clutter_actor_set_anchor_point_from_gravity(group_, CLUTTER_GRAVITY_CENTER);
 
     // circle
-    circle_ = inoui::create_circle(50.0f, unselected_color_);
+    circle_ = inoui::create_circle(15.0f, unselected_color_);
     clutter_actor_set_name(circle_, "point-circle");
     clutter_actor_set_anchor_point_from_gravity(circle_, CLUTTER_GRAVITY_CENTER);
     clutter_container_add_actor(CLUTTER_CONTAINER(group_), circle_);
