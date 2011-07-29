@@ -54,6 +54,7 @@ class InouiApplication
         ClutterActor *stage;
         ClutterActor *group;
         ClutterActor *spot_texture;
+        ClutterActor *coord_label_;
         int angle_sender_counter_;
         std::tr1::shared_ptr<spatosc::OscReceiver> osc_receiver;
         std::tr1::shared_ptr<Map> map_;
@@ -72,6 +73,7 @@ class InouiApplication
         void populate_map();
         Map *get_map();
         void reset_timer();
+        void update_coords_label(double x, double y);
     private:
         void add_static_point(gfloat x, gfloat y);
         std::tr1::shared_ptr<Timer> timer_last_played_;
@@ -161,6 +163,7 @@ int on_2dobj_received(const char * path, const char * types,
         double mapped_x = map_x_tag_pos_to_pixel(pos_x);
         double mapped_y = map_y_tag_pos_to_pixel(pos_y);
 
+        self->update_coords_label(mapped_x, mapped_y);
         clutter_actor_set_position(self->avatar_actor,
             mapped_x,
             mapped_y);
@@ -243,6 +246,13 @@ void InouiApplication::send_angle_message()
     }
 }
 
+void InouiApplication::update_coords_label(double x, double y)
+{
+    std::ostringstream text;
+    text << "(" << (int) x << ", " << (int) y << ")";
+    clutter_text_set_text(CLUTTER_TEXT(coord_label_), text.str().c_str());
+}
+
 void InouiApplication::setup_map()
 {
     map_.reset(new Map);
@@ -310,6 +320,12 @@ int main(int argc, char *argv[])
 
     ClutterColor grid_color = { 0x00, 0x00, 0x00, 0x11 };
     inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
+
+    ClutterColor text_color = { 0xff, 0xff, 0xff, 0xff };
+    app.coord_label_ = clutter_text_new_full("Sans semibold 12px", "0x0", &text_color);
+    clutter_actor_set_name(app.coord_label_, "coords-text");
+    clutter_actor_set_position(app.coord_label_, WINDOW_WIDTH - 200, WINDOW_HEIGHT - 15);
+    clutter_container_add_actor(CLUTTER_CONTAINER(app.group), app.coord_label_);
 
     // Setup a callback that is called on each frame being rendered
     ClutterTimeline *timeline = clutter_timeline_new(1000);
