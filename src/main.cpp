@@ -318,8 +318,8 @@ int main(int argc, char *argv[])
     app.populate_map();
     app.angle_ = 0.0;
 
-    ClutterColor grid_color = { 0x00, 0x00, 0x00, 0x11 };
-    inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
+    //ClutterColor grid_color = { 0x00, 0x00, 0x00, 0x11 };
+    //inoui::create_grid(CLUTTER_CONTAINER(stage), 10.0f, 10.0f, &grid_color);
 
     ClutterColor text_color = { 0xff, 0xff, 0xff, 0xff };
     app.coord_label_ = clutter_text_new_full("Sans semibold 12px", "0x0", &text_color);
