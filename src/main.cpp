@@ -213,7 +213,7 @@ void InouiApplication::on_point_chosen(std::string sound_file_name)
 {
     if (sound_file_name != "")
     {
-        g_print("on_point_chosen: %s\n", sound_file_name.c_str());
+        //g_print("on_point_chosen: %s\n", sound_file_name.c_str());
         next_sound_to_play_ = sound_file_name;
     }
 }

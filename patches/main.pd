@@ -1,4 +1,4 @@
-#N canvas 525 307 1187 640 10;
+#N canvas -8 132 1187 640 10;
 #X obj 52 205 print netreceive;
 #X obj 30 224 list prepend set;
 #X obj 30 246 list trim;
@@ -11,7 +11,7 @@
 #X msg 572 238 fade_in 15 \, fade_out 500;
 #X obj 579 210 loadbang;
 #X obj 756 457 vsl 30 60 -100 0 0 0 empty empty empty 0 -9 0 10 -258113
--1 -1 4484 1;
+-1 -1 4838 1;
 #X floatatom 759 538 5 0 0 0 - - -;
 #X obj 598 538 ambi.gain.4~;
 #X obj 511 362 loadbang;
@@ -49,6 +49,8 @@
 #X obj 457 282 inoui.player~;
 #X obj 357 87 list prepend play;
 #X obj 357 110 list trim;
+#X obj 609 79 bng 50 250 50 0 empty empty stop 17 7 0 10 -260097 -1
+-1;
 #X connect 1 0 2 0;
 #X connect 2 0 3 0;
 #X connect 4 0 5 0;
@@ -120,3 +122,5 @@
 #X connect 44 2 32 2;
 #X connect 45 0 46 0;
 #X connect 46 0 37 0;
+#X connect 47 0 41 0;
+#X connect 47 0 42 0;

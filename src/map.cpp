@@ -37,7 +37,7 @@ bool Map::set_selected_point(Point *selected)
         {
             if (point == selected)
             {
-                g_print("Set selected point to %s.\n", selected->get_x_y_as_string().c_str());
+                //g_print("Set selected point to %s.\n", selected->get_x_y_as_string().c_str());
                 point->set_selected(true);
             }
             else
