@@ -15,3 +15,8 @@ How to make it work
  * run ./one_click_build.sh
 
 Next, you should plug in a camera that works with reactivision. You need four speakers. You might want to run Pure Data with JACK, depending on your audio device and your preferences.
+
+Finally:
+
+cd ~/path/to/inoui/
+lunch -g launch_inoui.lunch
