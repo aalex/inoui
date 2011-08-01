@@ -163,7 +163,7 @@ int on_2dobj_received(const char * path, const char * types,
     {
         double pos_x = (double) argv[3]->f;
         double pos_y = (double) argv[4]->f;
-        std::cout << "Fiducial is at " << pos_x << "," << pos_y << std::endl;
+        //std::cout << "Fiducial is at " << pos_x << "," << pos_y << std::endl;
         if (MIRROR_FIDUCIAL_POSITION)
         {
             pos_x = CAMERA_RATIO - pos_x;
