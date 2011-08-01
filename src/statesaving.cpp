@@ -117,27 +117,22 @@ bool load_project(Map *map, std::string &file_name)
                 
                 point = map->add_point(point_pos_x, point_pos_y);
 
-                // sounds:
-                xmlNode *sounds_node = seek_child_named(point_node, ss::SOUNDS_NODE);
-                if (sounds_node != NULL)
+                for (xmlNode *sound_node = point_node->children; sound_node; sound_node = sound_node->next)
                 {
-                    for (xmlNode *sound_node = sounds_node->children; sound_node; sound_node = sound_node->next)
+                    // sound:
+                    if (node_name_is(sound_node, ss::SOUND_NODE))
                     {
-                        // sound:
-                        if (node_name_is(sound_node, ss::SOUND_NODE))
+                        // sound file name
+                        xmlChar *sound_name = xmlGetProp(sound_node, XMLSTR ss::SOUND_NAME_ATTR);
+                        if (sound_name != NULL)
                         {
-                            // sound file name
-                            xmlChar *sound_name = xmlGetProp(sound_node, XMLSTR ss::SOUND_NAME_ATTR);
-                            if (sound_name != NULL)
-                            {
-                                if (verbose)
-                                    printf(" * Sound name: %s\n", sound_name);
-                                point->add_sound((char *) sound_name);
-                            } // sound name attribute
-                            xmlFree(sound_name); // free the property string
-                        } // if SOUND_NODE
-                    } // for each sound
-                } // if SOUNDS_NODE
+                            if (verbose)
+                                printf(" * Sound name: %s\n", sound_name);
+                            point->add_sound((char *) sound_name);
+                        } // sound name attribute
+                        xmlFree(sound_name); // free the property string
+                    } // if SOUND_NODE
+                } // for each sound
             } // if POINT_node
         } // end of for each point
     } // end of points node
