@@ -89,7 +89,7 @@ bool load_project(Map *map, std::string &file_name)
                     {
                         point_pos_x = boost::lexical_cast<double>(x_prop);
                         if (verbose)
-                            printf("Clip x: %f \n", point_pos_x);
+                            printf("Point x: %f \n", point_pos_x);
                     }
                     catch (boost::bad_lexical_cast &)
                     {
@@ -106,7 +106,7 @@ bool load_project(Map *map, std::string &file_name)
                     {
                         point_pos_y = boost::lexical_cast<double>(y_prop);
                         if (verbose)
-                            printf("Clip y: %f \n", point_pos_y);
+                            printf("Point y: %f \n", point_pos_y);
                     }
                     catch (boost::bad_lexical_cast &)
                     {
