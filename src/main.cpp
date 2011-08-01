@@ -20,6 +20,7 @@
 #include "pprint.h"
 #include "soundinfo.h"
 #include "timer.h"
+#include "statesaving.h"
 
 #ifndef UNUSED
 #define UNUSED(x) ((void) (x))

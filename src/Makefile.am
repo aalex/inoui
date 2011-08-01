@@ -18,6 +18,7 @@ headers = \
 	soundinfo.h \
 	timer.h \
 	unused.h \
+	statesaving.h \
 	config.h
 
 inoui_SOURCES = \
@@ -30,6 +31,7 @@ inoui_SOURCES = \
 	pprint.cpp \
 	point.cpp \
 	soundinfo.cpp \
+	statesaving.cpp \
 	timer.cpp \
 	$(headers)
 
@@ -41,7 +43,7 @@ inoui_CXXFLAGS = \
 	$(SNDFILE_CFLAGS) \
 	$(LIBM_CXXFLAGS) \
 	$(LIBTHREAD_CXXFLAGS) \
-	$(LIBXML_XFLAGS)
+	$(LIBXML_CFLAGS)
  
 inoui_LDADD = \
 	$(BOOST_FILESYSTEM_LIB) \
