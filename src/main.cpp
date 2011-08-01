@@ -95,7 +95,7 @@ InouiApplication::InouiApplication()
 {
     timer_last_played_.reset(new Timer);
     next_sound_to_play_ = std::string("");
-    project_file_name_ = std::string("data/project.xml");
+    project_file_name_ = std::string("data/map.xml");
 }
 
 void InouiApplication::reset_timer()

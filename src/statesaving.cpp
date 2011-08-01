@@ -56,12 +56,9 @@ bool load_project(Map *map, std::string &file_name)
         std::cout << "Loading project file " << file_name << std::endl;
 
     xmlNode *root = xmlDocGetRootElement(doc);
-
-    // POINTS:
-    xmlNode *points_node = seek_child_named(root, ss::POINTS_NODE);
-    if (points_node != NULL)
+    if (root != NULL)
     {
-        for (xmlNode *point_node = points_node->children; point_node; point_node = point_node->next)
+        for (xmlNode *point_node = root->children; point_node; point_node = point_node->next)
         {
             std::string point_id_str = "";
             double point_pos_x = 0.0;

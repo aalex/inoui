@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map>
+  <point id="" x="0.0" y="0.0">
+    <sound name="foo.wav"/>
+  </point>
+  <point id="" x="200.0" y="200.0">
+    <sound name="foo.wav"/>
+  </point>
+</map>
