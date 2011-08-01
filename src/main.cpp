@@ -1,6 +1,7 @@
 /**
  * Inoui: A map of sounds.
  */
+#include <boost/filesystem.hpp>
 #include <clutter/clutter.h>
 #include <cmath>
 #include <spatosc/fudi_sender.h>
@@ -44,6 +45,7 @@ static const double MAP_Y_FROM = -0.1;
 static const double MAP_Y_TO = 1.1;
 static const int SEND_ANGLE_EVERY = 15;
 static const double CAMERA_RATIO = 1.0;
+static const bool USE_DUMMY_CONTENTS = false;
 
 /**
  * Info for our little application.
@@ -81,6 +83,7 @@ class InouiApplication
         void add_static_point(gfloat x, gfloat y);
         std::tr1::shared_ptr<Timer> timer_last_played_;
         std::string next_sound_to_play_;
+        std::string project_file_name_;
 };
 
 Map *InouiApplication::get_map()
@@ -92,6 +95,7 @@ InouiApplication::InouiApplication()
 {
     timer_last_played_.reset(new Timer);
     next_sound_to_play_ = std::string("");
+    project_file_name_ = std::string("data/project.xml");
 }
 
 void InouiApplication::reset_timer()
@@ -266,47 +270,58 @@ void InouiApplication::setup_map()
 
 void InouiApplication::populate_map()
 {
+    namespace fs = boost::filesystem;
     Map *the_map = get_map();
-    Point *point = 0;
-
-    point = the_map->add_point(100.0, 100.0);
-    point->add_sound("SR018-quad.wav");
-    point->add_sound("SR019-quad.wav");
-
-    point = the_map->add_point(200.0, 200.0);
-    point->add_sound("SR020-quad.wav");
-
-    point = the_map->add_point(300.0, 300.00);
-    point->add_sound("SR021-quad.wav");
-    point->add_sound("SR022-quad.wav");
-
-    point = the_map->add_point(500.0, 500.00);
-    point->add_sound("SR021-quad.wav");
-
-    point = the_map->add_point(100.0, 500.00);
-    point->add_sound("SR021-quad.wav");
-
-    point = the_map->add_point(800.0, 500.00);
-    point->add_sound("SR021-quad.wav");
-
-    point = the_map->add_point(800.0, 200.00);
-    point->add_sound("SR021-quad.wav");
-
-    point = the_map->add_point(1000.0, 200.00);
-    point->add_sound("SR021-quad.wav");
-
-    point = the_map->add_point(1000.0, 800.00);
-    point->add_sound("SR021-quad.wav");
-
-    for (int x = 0; x < 8; x++)
+    if (USE_DUMMY_CONTENTS)
     {
-        for (int y = 0; y < 6; y++)
+        Point *point = 0;
+
+        point = the_map->add_point(100.0, 100.0);
+        point->add_sound("SR018-quad.wav");
+        point->add_sound("SR019-quad.wav");
+
+        point = the_map->add_point(200.0, 200.0);
+        point->add_sound("SR020-quad.wav");
+
+        point = the_map->add_point(300.0, 300.00);
+        point->add_sound("SR021-quad.wav");
+        point->add_sound("SR022-quad.wav");
+
+        point = the_map->add_point(500.0, 500.00);
+        point->add_sound("SR021-quad.wav");
+
+        point = the_map->add_point(100.0, 500.00);
+        point->add_sound("SR021-quad.wav");
+
+        point = the_map->add_point(800.0, 500.00);
+        point->add_sound("SR021-quad.wav");
+
+        point = the_map->add_point(800.0, 200.00);
+        point->add_sound("SR021-quad.wav");
+
+        point = the_map->add_point(1000.0, 200.00);
+        point->add_sound("SR021-quad.wav");
+
+        point = the_map->add_point(1000.0, 800.00);
+        point->add_sound("SR021-quad.wav");
+
+        for (int x = 0; x < 8; x++)
         {
-            point = the_map->add_point(
-                x / 8.0 * WINDOW_WIDTH,
-                y / 6.0 * WINDOW_HEIGHT);
-            point->add_sound("SR021-quad.wav");
+            for (int y = 0; y < 6; y++)
+            {
+                point = the_map->add_point(
+                    x / 8.0 * WINDOW_WIDTH,
+                    y / 6.0 * WINDOW_HEIGHT);
+                point->add_sound("SR021-quad.wav");
+            }
         }
+    }
+    else
+    {
+        if (fs::exists(project_file_name_))
+            inoui::load_project(the_map, project_file_name_);
+        else
+            std::cout << "Could not find project file " << project_file_name_ << std::endl;
     }
 }
 
