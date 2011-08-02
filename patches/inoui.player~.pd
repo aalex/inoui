@@ -1,5 +1,5 @@
 #N canvas 514 309 573 609 10;
-#X obj 95 350 ambi.sf.read.4~;
+#X obj 96 323 ambi.sf.read.4~;
 #X obj 97 490 ambi.gain.4~;
 #X msg 97 297 open \$1;
 #X obj 97 170 unpack s f;
