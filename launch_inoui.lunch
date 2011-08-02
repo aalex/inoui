@@ -11,7 +11,7 @@ MAP_FILE = os.path.join(os.environ["HOME"], "src/orleans-inoui/map.xml")
 PATCH_FILE =  os.path.join(os.environ["HOME"], "src/inoui/patches/main.pd")
 REACIVISION_CONFIG_FILE = os.path.join(os.environ["HOME"], "src/inoui/data/reacTIVision.xml")
 AMBI_PATCHES_DIR = os.path.join(os.environ["HOME"], "src/ambi/patches")
-inoui_command = "inoui --fiducial-id %(fiducial)d --image %(image)s --sounds-dir %(sounds)s --mirror" % {
+inoui_command = "inoui --fiducial-id %(fiducial)d --image %(image)s --sounds-dir %(sounds)s --map-file-name %(map)s --mirror" % {
         "fiducial" : FIDUCIAL_ID,
         "image" : BACKGROUND_IMAGE,
         "sounds" : SOUNDS_DIR,

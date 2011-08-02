@@ -411,6 +411,7 @@ void InouiApplication::parse_options(int argc, char *argv[])
         ("mirror,m", po::bool_switch(), "Enables horizontal mirror for the fiducial position")
 
         ("fiducial-id,f", po::value<int>()->default_value(config->fiducial_id), "Sets the initial fiducial marker to track")
+        ("map-file-name,m", po::value<std::string>()->default_value(config->map_file_name), "Path to the XML file for the map")
         //("osc-receive-port,p", po::value<std::string>(), "Sets the listening OSC port")
         //("fudi-send-port,P", po::value<unsigned int>(), "Sets the port to send FUDI messages to")
         //("fudi-send-addr,a", po::value<std::string>()->default_value("localhost"), "Sets the IP address to send FUDI messages to")
@@ -447,6 +448,20 @@ void InouiApplication::parse_options(int argc, char *argv[])
         else
         {
             std::cout << "Could not find image " << config->background_image << "." << std::endl;
+            exit(1); // exit with error
+        }
+    }
+    if (options.count("map-file-name"))
+    {
+        config->map_file_name = options["map-file-name"].as<std::string>();
+        if (fs::exists(config->map_file_name))
+        {
+            if (verbose)
+                std::cout << "map is set to " << config->map_file_name << std::endl;
+        }
+        else
+        {
+            std::cout << "Could not find map " << config->map_file_name << "." << std::endl;
             exit(1); // exit with error
         }
     }
