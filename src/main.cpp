@@ -39,7 +39,7 @@ static const char *WINDOW_TITLE = "Paysages inouïs d'Orléans ~ Press Escape to
 static const gchar *DEFAULT_BACKGROUND_FILE_NAME = "data/orleans_1024x768.png";
 static const gint FUDI_SEND_PORT = 14444;
 static const std::string FUDI_SEND_HOST = "localhost";
-static const std::string OSC_RECEIVE_PORT = "13333";
+static const std::string OSC_RECEIVE_PORT = "3333";
 //static const gint MAP_CENTER_X = 600;
 //static const gint MAP_CENTER_Y = 400;
 //static const bool MIRROR_FIDUCIAL_POSITION = true;
@@ -70,6 +70,7 @@ class InouiConfiguration
         std::string map_file_name;
         bool use_any_fiducial;
         bool verbose;
+        bool vertical_flip;
 };
 
 InouiConfiguration::InouiConfiguration() :
@@ -82,7 +83,8 @@ InouiConfiguration::InouiConfiguration() :
     horizontal_mirror(false),
     map_file_name(DEFAULT_MAP_FILE_NAME),
     use_any_fiducial(false),
-    verbose(false)
+    verbose(false),
+    vertical_flip(false)
 {
     // pass
 }
@@ -211,15 +213,17 @@ int on_2dobj_received(const char * path, const char * types,
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
         int class_id = (int) argv[2]->i;
+        //if (self->is_verbose())
+        //    std::cout << "Got class id " << class_id << std::endl;
         if (class_id == self->config()->fiducial_id || self->config()->use_any_fiducial)
         {
             double pos_x = (double) argv[3]->f;
             double pos_y = (double) argv[4]->f;
             //std::cout << "Fiducial is at " << pos_x << "," << pos_y << std::endl;
             if (self->config()->horizontal_mirror)
-            {
                 pos_x = CAMERA_RATIO - pos_x;
-            }
+            if (self->config()->vertical_flip)
+                pos_y = CAMERA_RATIO - pos_y;
             double mapped_x = map_x_tag_pos_to_pixel(pos_x);
             double mapped_y = map_y_tag_pos_to_pixel(pos_y);
 
@@ -412,6 +416,7 @@ void InouiApplication::parse_options(int argc, char *argv[])
 
         ("fiducial-id,f", po::value<int>()->default_value(config->fiducial_id), "Sets the initial fiducial marker to track")
         ("map-file-name,m", po::value<std::string>()->default_value(config->map_file_name), "Path to the XML file for the map")
+        ("vertical-flip,V", po::bool_switch(), "Enables vertical flipping for the fiducial position")
         //("osc-receive-port,p", po::value<std::string>(), "Sets the listening OSC port")
         //("fudi-send-port,P", po::value<unsigned int>(), "Sets the port to send FUDI messages to")
         //("fudi-send-addr,a", po::value<std::string>()->default_value("localhost"), "Sets the IP address to send FUDI messages to")
@@ -493,6 +498,13 @@ void InouiApplication::parse_options(int argc, char *argv[])
         if (verbose)
             std::cout << "Mirror is on" << std::endl;
         config->horizontal_mirror = true;
+    }
+
+    if (options["vertical-flip"].as<bool>())
+    {
+        if (verbose)
+            std::cout << "Vertical flip is on" << std::endl;
+        config->vertical_flip = true;
     }
 
     if (options["use-any-fiducial"].as<bool>())
