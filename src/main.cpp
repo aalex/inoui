@@ -121,6 +121,7 @@ class InouiApplication
         void update_coords_label(double x, double y);
         void parse_options(int argc, char *argv[]);
         InouiConfiguration *config() { return config_.get(); }
+        bool is_verbose();
     private:
         void add_static_point(gfloat x, gfloat y);
         std::tr1::shared_ptr<Timer> timer_last_played_;
@@ -128,6 +129,11 @@ class InouiApplication
         void load_dummy_contents();
         std::tr1::shared_ptr<InouiConfiguration> config_;
 };
+
+bool InouiApplication::is_verbose()
+{
+    return config()->verbose;
+}
 
 Map *InouiApplication::get_map()
 {
@@ -282,7 +288,8 @@ void InouiApplication::send_play_message_if_needed()
             // FIXME: getting sndfile duration should be done only once for each file
             long int duration_ms = inoui::get_sound_file_duration(file_name.str());
             message << "play " << file_name.str() << " " << duration_ms << ";\n";
-            g_print("Sending FUDI message: %s \n", message.str().c_str());
+            if (is_verbose())
+                g_print("Send FUDI: %s \n", message.str().c_str());
             // send sound file info to pd
             fudi_sender.get()->sendFudi(message.str());
             next_sound_to_play_ = "";
@@ -372,7 +379,7 @@ void InouiApplication::populate_map()
     else
     {
         if (fs::exists(config()->map_file_name))
-            inoui::load_project(the_map, config()->map_file_name);
+            inoui::load_project(the_map, config()->map_file_name, is_verbose());
         else
             std::cout << "Could not find project file " << config()->map_file_name << std::endl;
     }

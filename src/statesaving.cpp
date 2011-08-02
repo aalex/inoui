@@ -41,10 +41,9 @@ namespace
 namespace inoui
 {
 
-bool load_project(Map *map, std::string &file_name)
+bool load_project(Map *map, std::string &file_name, bool verbose)
 {
     namespace ss = statesaving;
-    bool verbose = true;
     xmlDoc *doc = xmlReadFile(file_name.c_str(), NULL, 0);
 
     if (doc == NULL)

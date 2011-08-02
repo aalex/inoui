@@ -14,7 +14,7 @@ class Map;
 namespace inoui
 {
 
-bool load_project(Map *map, std::string &file_name);
+bool load_project(Map *map, std::string &file_name, bool verbose);
 
 }; // end of namespace
 
