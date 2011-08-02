@@ -2,6 +2,7 @@
  * Inoui: A map of sounds.
  */
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 #include <clutter/clutter.h>
 #include <cmath>
 #include <spatosc/fudi_sender.h>
@@ -14,6 +15,7 @@
 
 #include "avatar.h"
 #include "circle.h"
+#include "config.h"
 #include "grid.h"
 #include "map.h"
 #include "maths.h"
@@ -27,18 +29,23 @@
 #define UNUSED(x) ((void) (x))
 #endif
 
+namespace fs = boost::filesystem;
+namespace po = boost::program_options;
+
+// TODO: use image size to set window size
 static const float WINDOW_WIDTH = 1024;
 static const float WINDOW_HEIGHT = 768;
 static const char *WINDOW_TITLE = "Paysages inouïs d'Orléans ~ Press Escape to quit";
-static const gchar *BACKGROUND_FILE_NAME = "data/orleans_1024x768.png";
+static const gchar *DEFAULT_BACKGROUND_FILE_NAME = "data/orleans_1024x768.png";
 static const gint FUDI_SEND_PORT = 14444;
+static const std::string FUDI_SEND_HOST = "localhost";
 static const std::string OSC_RECEIVE_PORT = "13333";
-static const gint MAP_CENTER_X = 600;
-static const gint MAP_CENTER_Y = 400;
-static const bool MIRROR_FIDUCIAL_POSITION = true;
+//static const gint MAP_CENTER_X = 600;
+//static const gint MAP_CENTER_Y = 400;
+//static const bool MIRROR_FIDUCIAL_POSITION = true;
 static const double TIME_BETWEEN_EACH_PLAY = 0.5; // seconds
 // FIXME: hard-coding paths is evil
-static const std::string SOUNDS_PREFIX = "/home/aalex/SONS/";
+static const std::string DEFAULT_SOUNDS_PREFIX = "/home/aalex/SONS/";
 static const double MAP_X_FROM = -0.1;
 static const double MAP_X_TO = 1.1;
 static const double MAP_Y_FROM = -0.1;
@@ -46,6 +53,39 @@ static const double MAP_Y_TO = 1.1;
 static const int SEND_ANGLE_EVERY = 15;
 static const double CAMERA_RATIO = 1.0;
 static const bool USE_DUMMY_CONTENTS = false;
+static const int DEFAULT_FIDUCIAL_ID = 69;
+static const std::string DEFAULT_MAP_FILE_NAME = "data/map.xml";
+
+class InouiConfiguration
+{
+    public:
+        InouiConfiguration();
+        std::string sound_prefix;
+//        unsigned int osc_receive_port;
+//        unsigned int fudi_send_port;
+//        std::string fudi_send_host;
+        std::string background_image;
+        int fiducial_id;
+        bool horizontal_mirror;
+        std::string map_file_name;
+        bool use_any_fiducial;
+        bool verbose;
+};
+
+InouiConfiguration::InouiConfiguration() :
+    sound_prefix(DEFAULT_SOUNDS_PREFIX),
+//    osc_receive_port(OSC_RECEIVE_PORT),
+//    fudi_send_port(FUDI_SEND_PORT),
+//    fudi_send_host(FUDI_SEND_HOST),
+    background_image(DEFAULT_BACKGROUND_FILE_NAME),
+    fiducial_id(DEFAULT_FIDUCIAL_ID),
+    horizontal_mirror(false),
+    map_file_name(DEFAULT_MAP_FILE_NAME),
+    use_any_fiducial(false),
+    verbose(false)
+{
+    // pass
+}
 
 /**
  * Info for our little application.
@@ -79,11 +119,14 @@ class InouiApplication
         Map *get_map();
         void reset_timer();
         void update_coords_label(double x, double y);
+        void parse_options(int argc, char *argv[]);
+        InouiConfiguration *config() { return config_.get(); }
     private:
         void add_static_point(gfloat x, gfloat y);
         std::tr1::shared_ptr<Timer> timer_last_played_;
         std::string next_sound_to_play_;
-        std::string project_file_name_;
+        void load_dummy_contents();
+        std::tr1::shared_ptr<InouiConfiguration> config_;
 };
 
 Map *InouiApplication::get_map()
@@ -93,9 +136,9 @@ Map *InouiApplication::get_map()
 
 InouiApplication::InouiApplication()
 {
+    config_.reset(new InouiConfiguration);
     timer_last_played_.reset(new Timer);
     next_sound_to_play_ = std::string("");
-    project_file_name_ = std::string("data/map.xml");
 }
 
 void InouiApplication::reset_timer()
@@ -107,7 +150,7 @@ void InouiApplication::init_map_textures()
 {
     // Background map:
     GError *error = NULL;
-    ClutterActor *image = clutter_texture_new_from_file(BACKGROUND_FILE_NAME, &error);
+    ClutterActor *image = clutter_texture_new_from_file(config()->background_image.c_str(), &error);
     if (error)
     {
         g_critical("Unable to init image: %s", error->message);
@@ -161,32 +204,36 @@ int on_2dobj_received(const char * path, const char * types,
     InouiApplication *self = static_cast<InouiApplication*>(user_data);
     if (std::string("set") == reinterpret_cast<const char*>(argv[0]))
     {
-        double pos_x = (double) argv[3]->f;
-        double pos_y = (double) argv[4]->f;
-        //std::cout << "Fiducial is at " << pos_x << "," << pos_y << std::endl;
-        if (MIRROR_FIDUCIAL_POSITION)
+        int class_id = (int) argv[2]->i;
+        if (class_id == self->config()->fiducial_id || self->config()->use_any_fiducial)
         {
-            pos_x = CAMERA_RATIO - pos_x;
+            double pos_x = (double) argv[3]->f;
+            double pos_y = (double) argv[4]->f;
+            //std::cout << "Fiducial is at " << pos_x << "," << pos_y << std::endl;
+            if (self->config()->horizontal_mirror)
+            {
+                pos_x = CAMERA_RATIO - pos_x;
+            }
+            double mapped_x = map_x_tag_pos_to_pixel(pos_x);
+            double mapped_y = map_y_tag_pos_to_pixel(pos_y);
+
+            self->update_coords_label(mapped_x, mapped_y);
+            clutter_actor_set_position(self->avatar_actor,
+                mapped_x,
+                mapped_y);
+
+            Point *closest = self->get_map()->get_closest_point(mapped_x, mapped_y);
+            if (closest)
+            {
+                // This is done in Map::get_closest_point
+                //g_print("Select a point");
+                //self->get_map()->set_selected(closest);
+            }
+
+            double angle = (double) inoui::radians_to_degrees(argv[5]->f);
+            self->angle_ = angle;
+            // g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
         }
-        double mapped_x = map_x_tag_pos_to_pixel(pos_x);
-        double mapped_y = map_y_tag_pos_to_pixel(pos_y);
-
-        self->update_coords_label(mapped_x, mapped_y);
-        clutter_actor_set_position(self->avatar_actor,
-            mapped_x,
-            mapped_y);
-
-        Point *closest = self->get_map()->get_closest_point(mapped_x, mapped_y);
-        if (closest)
-        {
-            // This is done in Map::get_closest_point
-            //g_print("Select a point");
-            //self->get_map()->set_selected(closest);
-        }
-
-        double angle = (double) inoui::radians_to_degrees(argv[5]->f);
-        self->angle_ = angle;
-        // g_print("Fiducial is at (%f, %f). Its angle is %f degrees.\n",
     }
     else
         return 1;
@@ -229,7 +276,8 @@ void InouiApplication::send_play_message_if_needed()
             timer->start();
             std::ostringstream message;
             std::ostringstream file_name;
-            file_name << SOUNDS_PREFIX << next_sound_to_play_;
+            // FIXME: we should use boost::fs to append paths together
+            file_name << config()->sound_prefix << next_sound_to_play_;
             // get sound file duration
             // FIXME: getting sndfile duration should be done only once for each file
             long int duration_ms = inoui::get_sound_file_duration(file_name.str());
@@ -268,60 +316,65 @@ void InouiApplication::setup_map()
     clutter_container_add_actor(CLUTTER_CONTAINER(group), get_map()->get_actor());
 }
 
+void InouiApplication::load_dummy_contents()
+{
+    Point *point = 0;
+
+    Map *the_map = get_map();
+    point = the_map->add_point(100.0, 100.0);
+    point->add_sound("SR018-quad.wav");
+    point->add_sound("SR019-quad.wav");
+
+    point = the_map->add_point(200.0, 200.0);
+    point->add_sound("SR020-quad.wav");
+
+    point = the_map->add_point(300.0, 300.00);
+    point->add_sound("SR021-quad.wav");
+    point->add_sound("SR022-quad.wav");
+
+    point = the_map->add_point(500.0, 500.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(100.0, 500.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(800.0, 500.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(800.0, 200.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(1000.0, 200.00);
+    point->add_sound("SR021-quad.wav");
+
+    point = the_map->add_point(1000.0, 800.00);
+    point->add_sound("SR021-quad.wav");
+
+    for (int x = 0; x < 8; x++)
+    {
+        for (int y = 0; y < 6; y++)
+        {
+            point = the_map->add_point(
+                x / 8.0 * WINDOW_WIDTH,
+                y / 6.0 * WINDOW_HEIGHT);
+            point->add_sound("SR021-quad.wav");
+        }
+    }
+}
+
 void InouiApplication::populate_map()
 {
-    namespace fs = boost::filesystem;
     Map *the_map = get_map();
     if (USE_DUMMY_CONTENTS)
     {
-        Point *point = 0;
-
-        point = the_map->add_point(100.0, 100.0);
-        point->add_sound("SR018-quad.wav");
-        point->add_sound("SR019-quad.wav");
-
-        point = the_map->add_point(200.0, 200.0);
-        point->add_sound("SR020-quad.wav");
-
-        point = the_map->add_point(300.0, 300.00);
-        point->add_sound("SR021-quad.wav");
-        point->add_sound("SR022-quad.wav");
-
-        point = the_map->add_point(500.0, 500.00);
-        point->add_sound("SR021-quad.wav");
-
-        point = the_map->add_point(100.0, 500.00);
-        point->add_sound("SR021-quad.wav");
-
-        point = the_map->add_point(800.0, 500.00);
-        point->add_sound("SR021-quad.wav");
-
-        point = the_map->add_point(800.0, 200.00);
-        point->add_sound("SR021-quad.wav");
-
-        point = the_map->add_point(1000.0, 200.00);
-        point->add_sound("SR021-quad.wav");
-
-        point = the_map->add_point(1000.0, 800.00);
-        point->add_sound("SR021-quad.wav");
-
-        for (int x = 0; x < 8; x++)
-        {
-            for (int y = 0; y < 6; y++)
-            {
-                point = the_map->add_point(
-                    x / 8.0 * WINDOW_WIDTH,
-                    y / 6.0 * WINDOW_HEIGHT);
-                point->add_sound("SR021-quad.wav");
-            }
-        }
+        load_dummy_contents();
     }
     else
     {
-        if (fs::exists(project_file_name_))
-            inoui::load_project(the_map, project_file_name_);
+        if (fs::exists(config()->map_file_name))
+            inoui::load_project(the_map, config()->map_file_name);
         else
-            std::cout << "Could not find project file " << project_file_name_ << std::endl;
+            std::cout << "Could not find project file " << config()->map_file_name << std::endl;
     }
 }
 
@@ -333,12 +386,108 @@ static void on_stage_shown(ClutterActor *stage, gpointer *data)
     app->reset_timer();
 }
 
+/**
+ * Parses the command line options.
+ */
+void InouiApplication::parse_options(int argc, char *argv[])
+{
+    InouiConfiguration *config = config_.get();
+
+    po::options_description desc("Options");
+    desc.add_options()
+        ("help,h", "Show this help message and exit")
+        ("version", "Show program's version number and exit")
+        ("verbose,v", po::bool_switch(), "Enables a verbose output")
+        ("use-any-fiducial,a", po::bool_switch(), "Tracks every fiducial")
+        ("sounds-dir,d", po::value<std::string>()->default_value(config->sound_prefix), "Path to the directory containing the sound files")
+        ("image,i", po::value<std::string>()->default_value(config->background_image), "Path to the background image of a map")
+        ("mirror,m", po::bool_switch(), "Enables horizontal mirror for the fiducial position")
+
+        ("fiducial-id,f", po::value<int>()->default_value(config->fiducial_id), "Sets the initial fiducial marker to track")
+        //("osc-receive-port,p", po::value<std::string>(), "Sets the listening OSC port")
+        //("fudi-send-port,P", po::value<unsigned int>(), "Sets the port to send FUDI messages to")
+        //("fudi-send-addr,a", po::value<std::string>()->default_value("localhost"), "Sets the IP address to send FUDI messages to")
+        ;
+    po::variables_map options;
+    po::store(po::parse_command_line(argc, argv, desc), options);
+    po::notify(options);
+    
+    bool verbose = options["verbose"].as<bool>();
+    if (verbose)
+        config->verbose = true;
+    // Options that makes the program exit:
+    if (options.count("help"))
+    {
+        std::cout << desc << std::endl;
+        exit(0);
+        //return;
+    }
+    if (options.count("version"))
+    {
+        std::cout << PACKAGE << " " << PACKAGE_VERSION << std::endl;
+        exit(0);
+        //return; 
+    }
+    // Options to use in the normal way:
+    if (options.count("image"))
+    {
+        config->background_image = options["image"].as<std::string>();
+        if (fs::exists(config->background_image))
+        {
+            if (verbose)
+                std::cout << "image is set to " << config->background_image << std::endl;
+        }
+        else
+        {
+            std::cout << "Could not find image " << config->background_image << "." << std::endl;
+            exit(1); // exit with error
+        }
+    }
+
+    if (options.count("sounds-dir"))
+    {
+        config->sound_prefix = options["sounds-dir"].as<std::string>();
+        if (fs::exists(config->sound_prefix))
+        {
+            if (verbose)
+                std::cout << "sound prefix is set to " << config->sound_prefix << std::endl;
+        }
+        else
+        {
+            std::cout << "Could not find sounds dir " << config->sound_prefix << "." << std::endl;
+            exit(1); // exit with error
+        }
+    }
+
+    if (options.count("fiducial-id"))
+    {
+        config->fiducial_id = options["fiducial-id"].as<int>();
+        if (verbose)
+            std::cout << "fiducial is set to " << config->fiducial_id << std::endl;
+    }
+
+    if (options["mirror"].as<bool>())
+    {
+        if (verbose)
+            std::cout << "Mirror is on" << std::endl;
+        config->horizontal_mirror = true;
+    }
+
+    if (options["use-any-fiducial"].as<bool>())
+    {
+        if (verbose)
+            std::cout << "Using any fiducial is on" << std::endl;
+        config->use_any_fiducial = true;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     ClutterActor *stage = NULL;
     ClutterColor black = { 0x00, 0x00, 0x00, 0xff };
     ClutterColor avatar_color = { 0x99, 0x00, 0x00, 0x00 };
     InouiApplication app;
+    app.parse_options(argc, argv);
 
     clutter_init(&argc, &argv);
     stage = clutter_stage_get_default();
@@ -391,7 +540,6 @@ int main(int argc, char *argv[])
     
     // print some info:
     //inoui::print_actors(app.get_map()->get_actor(), 0);
-    //Map *the_map = app.get_map();
     g_print("Running inoui.\n");
     clutter_main();
     return 0;
