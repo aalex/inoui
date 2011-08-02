@@ -1,3 +1,22 @@
 Inoui - Paysages inouïs d'Orléans
----------------------------------
+=================================
 Personal artistic project by Alexandre Quessy.
+
+Browse a map with a fiducial marker to hear the sounds from a city.
+
+
+How to make it work
+-------------------
+ * On Ubuntu Lucid, run the script in utils/install_deps.sh
+ * Install reactivision, from http://tangostudio.tuxfamily.org/fr/repository
+ * install lunch from https://launchpad.net/~sat-metalab/+archive/metalab
+ * install the ambi abstractions for Pure Data Vanilla from https://github.com/aalex/ambi
+ * make sure to add them to your -path in pd. (see ~/.pdrc)
+ * run ./one_click_build.sh
+
+Next, you should plug in a camera that works with reactivision. You need four speakers. You might want to run Pure Data with JACK, depending on your audio device and your preferences.
+
+Finally:
+
+cd ~/path/to/inoui/
+lunch -g launch_inoui.lunch
