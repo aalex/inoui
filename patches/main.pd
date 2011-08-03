@@ -1,4 +1,4 @@
-#N canvas 0 31 788 635 10;
+#N canvas 128 133 788 635 10;
 #X obj 65 193 print netreceive;
 #X obj 43 212 list prepend set;
 #X obj 43 234 list trim;
@@ -10,7 +10,7 @@
 #X msg 320 253 fade_in 15 \, fade_out 500;
 #X obj 327 225 loadbang;
 #X obj 578 472 vsl 30 60 -100 0 0 0 empty empty empty 0 -9 0 10 -258113
--1 -1 5900 1;
+-1 -1 5546 1;
 #X floatatom 581 553 5 0 0 0 - - -;
 #X obj 479 535 ambi.gain.4~;
 #X obj 392 359 loadbang;
@@ -22,8 +22,8 @@
 #X msg 392 396 angle 315;
 #X text 478 595 FL \, FR \, RL \, RR;
 #X msg 466 399 angle 45;
-#X msg 535 400 angle 225;
-#X msg 604 400 angle 135;
+#X msg 532 400 angle 225;
+#X msg 609 400 angle 135;
 #X msg 642 444 0;
 #X msg 642 466 -3;
 #X msg 642 486 -6;
@@ -73,6 +73,7 @@
 #X obj 167 191 list trim;
 #X obj 377 303 loadbang;
 #X msg 370 331 duration 250;
+#X msg 265 7 play /home/labomedia/src/444.wav 30000;
 #X connect 1 0 2 0;
 #X connect 2 0 3 0;
 #X connect 4 0 5 0;
@@ -169,3 +170,4 @@
 #X connect 65 0 31 3;
 #X connect 66 0 67 0;
 #X connect 67 0 31 3;
+#X connect 68 0 36 0;
