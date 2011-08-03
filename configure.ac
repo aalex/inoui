@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(INOUI, 0.1.0, [alexandre@quessy.net], [inoui], [http://alexandre.quessy.net])
+AC_INIT(INOUI, 0.1.1, [alexandre@quessy.net], [inoui], [http://alexandre.quessy.net])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4]) # check for m4 macros in directory m4
 AC_PROG_LIBTOOL
