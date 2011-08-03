@@ -93,4 +93,22 @@
     <sound name="18_02_parc_louis_pasteur.wav"/>
   </point>
 
+  <point id="19" x="318" y="184">
+    <sound name="19_01_mediatheque.wav"/>
+    <sound name="19_02_mediatheque.wav"/>
+    <sound name="19_03_eglise_ste_paterne.wav"/>
+    <sound name="19_04_place_gambetta.wav"/>
+  </point>
+
+  <point id="20" x="452" y="437">
+    <sound name="20_01_ruelle_place_martroi.wav"/>
+  </point>
+
+  <point id="21" x="101" y="495">
+    <sound name="21_01_nord_hopital.wav"/>
+  </point>
+
+  <point id="22" x="891" y="449">
+    <sound name="22_01_rue_ste_euverte.wav"/>
+  </point>
 </map>
