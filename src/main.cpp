@@ -124,6 +124,8 @@ class InouiApplication
         void parse_options(int argc, char *argv[]);
         InouiConfiguration *config() { return config_.get(); }
         bool is_verbose();
+        void goto_pos(double x, double y);
+        static gboolean on_mouse_button_event(ClutterActor *actor, ClutterButtonEvent *event, gpointer user_data);
     private:
         void add_static_point(gfloat x, gfloat y);
         std::tr1::shared_ptr<Timer> timer_last_played_;
@@ -226,19 +228,8 @@ int on_2dobj_received(const char * path, const char * types,
                 pos_y = CAMERA_RATIO - pos_y;
             double mapped_x = map_x_tag_pos_to_pixel(pos_x);
             double mapped_y = map_y_tag_pos_to_pixel(pos_y);
+            self->goto_pos(mapped_x, mapped_y);
 
-            self->update_coords_label(mapped_x, mapped_y);
-            clutter_actor_set_position(self->avatar_actor,
-                mapped_x,
-                mapped_y);
-
-            Point *closest = self->get_map()->get_closest_point(mapped_x, mapped_y);
-            if (closest)
-            {
-                // This is done in Map::get_closest_point
-                //g_print("Select a point");
-                //self->get_map()->set_selected(closest);
-            }
 
             double angle = (double) inoui::radians_to_degrees(argv[5]->f);
             self->angle_ = angle;
@@ -248,6 +239,23 @@ int on_2dobj_received(const char * path, const char * types,
     else
         return 1;
     return 0;
+}
+
+void InouiApplication::goto_pos(double x, double y)
+{
+    update_coords_label(x, y);
+    clutter_actor_set_position(avatar_actor,
+        x,
+        y);
+
+    //Point *closest = 
+    get_map()->get_closest_point(x, y);
+    //if (closest)
+    //{
+        // This is done in Map::get_closest_point
+        //g_print("Select a point");
+        //self->get_map()->set_selected(closest);
+    //}
 }
 
 /**
@@ -371,6 +379,17 @@ void InouiApplication::load_dummy_contents()
             point->add_sound("SR021-quad.wav");
         }
     }
+}
+
+gboolean InouiApplication::on_mouse_button_event(ClutterActor* /* actor */, ClutterButtonEvent *event, gpointer user_data)
+{
+    InouiApplication *app = static_cast<InouiApplication *>(user_data);
+    if (event->type == CLUTTER_BUTTON_PRESS)
+    {
+        //ClutterButtonEvent *button_event = CLUTTER_BUTTON_EVENT(event);
+        app->goto_pos(event->x, event->y);
+    }
+    return TRUE;
 }
 
 void InouiApplication::populate_map()
@@ -567,6 +586,8 @@ int main(int argc, char *argv[])
             static_cast<gpointer>(&app));
     g_signal_connect(stage, "show", G_CALLBACK(on_stage_shown),
             static_cast<gpointer>(&app));
+
+    g_signal_connect(G_OBJECT(app.stage), "button-press-event", G_CALLBACK(InouiApplication::on_mouse_button_event), &app);
 
     app.fudi_sender.reset(new spatosc::FudiSender("localhost", FUDI_SEND_PORT, false));
     // true for TCP, false for UDP

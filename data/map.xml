@@ -1,26 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map>
-  <point id="le108" x="770" y="550">
+
+  <point id="01" x="770" y="550">
     <sound name="01_01_maison_bourgogne.wav"/>
+    <sound name="01_02_maison_bourgogne.wav"/>
+    <sound name="01_03_maison_bourgogne.wav"/>
   </point>
-  <point id="construction" x="740" y="641">
+
+  <point id="02" x="740" y="641">
     <sound name="02_01_rue_puit_de_lumiere.wav"/>
     <sound name="02_02_rue_puit_de_lumiere.wav"/>
   </point>
-  <point id="chapelle_st-jacques" x="520" y="442">
+
+  <point id="03" x="520" y="442">
     <sound name="03_01_chapelle_st_jacques.wav"/>
     <sound name="03_02_chapelle_st_jacques.wav"/>
     <sound name="03_03_chapelle_st_jacques.wav"/>
+    <sound name="03_04_chapelle_st_jacques.wav"/>
   </point>
 
-  <point id="rue-republique-face-a-la-fnac" x="431" y="333">
+  <point id="04" x="431" y="333">
     <sound name="04_01_fnac.wav"/>
     <sound name="04_02_fnac.wav"/>
     <sound name="04_03_fnac.wav"/>
     <sound name="04_04_fnac.wav"/>
   </point>
 
-  <point id="place d'arc" x="460" y="193">
+  <point id="05" x="460" y="193">
     <sound name="05_01_place_arc.wav"/>
+    <sound name="17_01_gare_autobus.wav"/>
+    <sound name="17_02_gare_autobus.wav"/>
+    <sound name="17_03_gare_autobus.wav"/>
   </point>
+
+  <point id="06" x="600" y="487">
+    <sound name="06_01_devant_cathedrale.wav"/>
+    <sound name="06_02_devant_cathedrale.wav"/>
+    <sound name="06_03_devant_cathedrale.wav"/>
+    <sound name="06_04_devant_cathedrale.wav"/>
+  </point>
+
+  <point id="07" x="410" y="574">
+    <sound name="07_01_tram_rue_royale.wav"/>
+  </point>
+
+  <point id="08" x="405" y="448">
+    <sound name="08_01_carrousel_place_martroi.wav"/>
+    <sound name="08_02_carrousel_place_martroi.wav"/>
+  </point>
+
+  <point id="09" x="695" y="657">
+    <sound name="09_01_cloitre_st_pierre_le_puellier.wav"/>
+    <sound name="09_02_cloitre_st_pierre_le_puellier.wav"/>
+  </point>
+
+  <point id="10" x="461" y="111">
+    <sound name="10_01_gare_sncf.wav"/>
+    <sound name="10_02_gare_sncf.wav"/>
+    <sound name="10_03_gare_sncf.wav"/>
+  </point>
+
+  <point id="11" x="368" y="312">
+    <sound name="11_01_guichet_automatique.wav"/>
+  </point>
+
+  <point id="12" x="501" y="507">
+    <sound name="12_01_place_republique.wav"/>
+    <sound name="12_02_place_republique.wav"/>
+    <sound name="12_03_place_republique.wav"/>
+  </point>
+
+  <point id="13" x="295" y="654">
+    <sound name="13_01_eglise_notre_dame_recouvrance.wav"/>
+  </point>
+
+  <point id="14" x="729" y="702">
+    <sound name="14_01_quai_chatelet.wav"/>
+  </point>
+
+  <point id="15" x="1014" y="658">
+    <sound name="15_01_pont_rene_thinat.wav"/>
+  </point>
+
+  <point id="16" x="76" y="380">
+    <sound name="16_01_viaduc_porte_st_jean.wav"/>
+  </point>
+
+  <!-- there is no #17 -->
+
+  <point id="18" x="711" y="142">
+    <sound name="18_01_parc_louis_pasteur.wav"/>
+    <sound name="18_02_parc_louis_pasteur.wav"/>
+  </point>
+
 </map>
