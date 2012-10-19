@@ -4,7 +4,7 @@
 
 import os
 
-FIDUCIAL_ID = 0
+FIDUCIAL_ID = 35
 HOME = os.environ["HOME"]
 # FIXME: need the trailing slash
 SOUNDS_DIR = os.path.join(HOME, "SONS/") #"src/orleans-inoui/sounds/")
