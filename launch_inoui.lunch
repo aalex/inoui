@@ -4,23 +4,25 @@
 
 import os
 
-FIDUCIAL_ID = 69
+FIDUCIAL_ID = 0
 HOME = os.environ["HOME"]
 # FIXME: need the trailing slash
-SOUNDS_DIR = os.path.join(HOME, "src/orleans-inoui/sounds/")
-BACKGROUND_IMAGE = os.path.join(HOME, "src/orleans-inoui/background.png")
-MAP_FILE = os.path.join(HOME, "src/orleans-inoui/map.xml")
+SOUNDS_DIR = os.path.join(HOME, "SONS/") #"src/orleans-inoui/sounds/")
+#BACKGROUND_IMAGE = os.path.join(HOME, "current/projets/paysages-inouis/carte-finale/carte_1280x960.png") #"src/orleans-inoui/background.png")
+BACKGROUND_IMAGE = os.path.join(HOME, "SONS/map.png")
+MAP_FILE = os.path.join(HOME, "src/inoui/data/map.xml")
 PATCH_FILE =  os.path.join(HOME, "src/inoui/patches/main.pd")
-REACIVISION_CONFIG_FILE = os.path.join(HOME, "src/orleans-inoui/reacTIVision.xml")
+REACIVISION_CONFIG_FILE = os.path.join(HOME, "src/inoui/data/reacTIVision.xml")
 AMBI_PATCHES_DIR = os.path.join(HOME, "src/ambi/patches")
-inoui_command = "inoui --fiducial-id %(fiducial)d --image %(image)s --sounds-dir %(sounds)s --map-file-name %(map)s --vertical-flip --mirror" % {
+inoui_command = "inoui --fiducial-id %(fiducial)d --sounds-dir %(sounds)s --map-file-name %(map)s --vertical-flip --mirror --verbose" % {
         "fiducial" : FIDUCIAL_ID,
-        "image" : BACKGROUND_IMAGE,
         "sounds" : SOUNDS_DIR,
         "map" : MAP_FILE
     }
+#--image %(image)s 
+#"image" : BACKGROUND_IMAGE,
 
 # add_command("reactivision -c %s" % (REACIVISION_CONFIG_FILE), identifier="reactivision")
 add_command("reactivision", identifier="reactivision")
-add_command("pd -path %s -jack -nomidi -channels 4 -r 48000 %s" % (AMBI_PATCHES_DIR, PATCH_FILE), identifier="pd", sleep_after=1.0)
+add_command("pd -path %s -alsa -nomidi -channels 2 -r 48000 %s" % (AMBI_PATCHES_DIR, PATCH_FILE), identifier="pd", sleep_after=1.0)
 add_command(inoui_command, identifier="inoui")
