@@ -1,4 +1,4 @@
-#N canvas 131 333 788 635 10;
+#N canvas 132 331 788 635 10;
 #X obj 65 193 print netreceive;
 #X obj 43 212 list prepend set;
 #X obj 43 234 list trim;
@@ -10,7 +10,7 @@
 #X msg 320 253 fade_in 15 \, fade_out 500;
 #X obj 327 225 loadbang;
 #X obj 578 472 vsl 30 60 -100 18 0 0 empty empty empty 0 -9 0 10 -258113
--1 -1 5300 1;
+-1 -1 5900 1;
 #X floatatom 581 553 5 0 0 0 - - -;
 #X obj 479 535 ambi.gain.4~;
 #X obj 392 359 loadbang;
@@ -112,7 +112,7 @@
 #X connect 26 0 9 0;
 #X connect 27 0 9 0;
 #X connect 28 0 9 0;
-#X connect 29 0 70 0;
+#X connect 29 0 72 0;
 #X connect 30 0 13 0;
 #X connect 30 0 14 0;
 #X connect 30 0 16 0;
