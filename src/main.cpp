@@ -301,7 +301,7 @@ void InouiApplication::send_play_message_if_needed()
             long int duration_ms = inoui::get_sound_file_duration(file_name.str());
             message << "play " << file_name.str() << " " << duration_ms << ";\n";
             if (is_verbose())
-                g_print("Send FUDI: %s \n", message.str().c_str());
+                g_print("Send FUDI: %s", message.str().c_str()); // no need for endl
             // send sound file info to pd
             fudi_sender.get()->sendFudi(message.str());
             next_sound_to_play_ = "";
