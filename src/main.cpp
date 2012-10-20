@@ -45,7 +45,7 @@ static const std::string OSC_RECEIVE_PORT = "3333";
 //static const bool MIRROR_FIDUCIAL_POSITION = true;
 static const double TIME_BETWEEN_EACH_PLAY = 0.5; // seconds
 // FIXME: hard-coding paths is evil
-static const std::string DEFAULT_SOUNDS_PREFIX = "/home/aalex/SONS/";
+static const std::string DEFAULT_SOUNDS_PREFIX = "/home/kiosk/SONS/";
 static const double MAP_X_FROM = -0.1;
 static const double MAP_X_TO = 1.1;
 static const double MAP_Y_FROM = -0.1;
