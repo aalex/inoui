@@ -35,7 +35,7 @@ AC_CHECK_LIB([pthread],[pthread_exit],[AC_SUBST([LIBTHREAD_CXXFLAGS],["-lpthread
 AC_CHECK_LIB([m],[sin],[AC_SUBST([LIBM_CXXFLAGS],["-lm"])])
 
 # Set LIBLO with pkg-config
-PKG_CHECK_MODULES(SPATOSC, spatosc-0.2, have_spatosc=true, have_spatosc=false)
+PKG_CHECK_MODULES(SPATOSC, spatosc-0.4, have_spatosc=true, have_spatosc=false)
 if test "x${have_spatosc}" = "xfalse" ; then
     AC_MSG_ERROR([Missing spatosc])
 fi
