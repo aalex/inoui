@@ -7,8 +7,8 @@ Browse a map with a fiducial marker to hear the sounds from a city.
 
 How to make it work
 -------------------
- * On Ubuntu Lucid, run the script in utils/install_deps.sh
- * Install reactivision, from http://tangostudio.tuxfamily.org/fr/repository
+ * On Ubuntu Precise, run the script in utils/install_deps.sh
+ * Install reactivision, from http://sourceforge.net/projects/reactivision/files/
  * install lunch from https://launchpad.net/~sat-metalab/+archive/metalab
  * install the ambi abstractions for Pure Data Vanilla from https://github.com/aalex/ambi
  * make sure to add them to your -path in pd. (see ~/.pdrc)
