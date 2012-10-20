@@ -23,6 +23,6 @@ inoui_command = "inoui --fiducial-id %(fiducial)d --sounds-dir %(sounds)s --map-
 #"image" : BACKGROUND_IMAGE,
 
 # add_command("reactivision -c %s" % (REACIVISION_CONFIG_FILE), identifier="reactivision")
-add_command("reactivision", identifier="reactivision")
+add_command("reacTIVision", identifier="reactivision")
 add_command("pd -path %s -alsa -nomidi -channels 2 -r 48000 %s" % (AMBI_PATCHES_DIR, PATCH_FILE), identifier="pd", sleep_after=1.0)
 add_command(inoui_command, identifier="inoui")
